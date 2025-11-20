@@ -102,3 +102,206 @@ app.listen(PORT, () => {
     console.log(`✅ API Pink Rentals corriendo en http://localhost:${PORT}`);
     console.log(`📡 Sirviendo ${Object.keys(TABLE_ENDPOINTS).length} tablas automáticamente.`);
 });
+
+// ==========================================
+// CRUD DE CLIENTES (Transacciones Compuestas)
+// ==========================================
+
+// 1. CREAR CLIENTE (Crea Usuario + Crea Cliente)
+app.post('/api/clientes', async (req, res) => {
+    const { cedula, nombre, apellido1, apellido2, telefono, password } = req.body;
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        
+        // A. Crear Usuario (Rol 30 = Cliente)
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP(:ced, :nom, :ape1, :ape2, :pass, :rol); END;`,
+            {
+                ced: cedula, nom: nombre, ape1: apellido1, ape2: apellido2,
+                pass: password || 'Pink123', // Contraseña por defecto o la enviada
+                rol: 30 // ROL 30 ES CLIENTE
+            }
+        );
+
+        // B. Crear Registro Cliente (Teléfono)
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP(:ced, :tel); END;`,
+            { ced: cedula, tel: telefono }
+        );
+
+        res.status(201).json({ message: 'Cliente creado exitosamente' });
+    } catch (err) {
+        console.error("Error creando cliente:", err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+// 2. ACTUALIZAR CLIENTE (Versión Segura)
+app.put('/api/clientes/:cedula', async (req, res) => {
+    const { cedula } = req.params;
+    const { nombre, apellido1, apellido2, telefono, estado, password } = req.body; // Agregamos password aquí
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+
+        // PASO 1: Si no enviaron contraseña nueva, hay que buscar la vieja para no perderla
+        let passFinal = password;
+        if (!password) {
+            const resultUser = await connection.execute(
+                `SELECT contrasena FROM G2_SC508_VT_PROYECTO.FIDE_USUARIOS_TB WHERE USUARIOS_ID_CEDULA_PK = :id`,
+                [cedula]
+            );
+            if (resultUser.rows.length > 0) {
+                // oracledb devuelve objeto o array según config. Aquí aseguramos obtener el string.
+                // Si usas outFormat OBJECT: resultUser.rows[0].CONTRASENA
+                // Si usas outFormat ARRAY: resultUser.rows[0][0]
+                const row = resultUser.rows[0];
+                passFinal = row.CONTRASENA || row[0]; 
+            }
+        }
+
+        // PASO 2: Actualizar Usuario con la contraseña correcta (nueva o vieja)
+        await connection.execute(
+            `BEGIN 
+                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_ACTUALIZAR_SP(:ced, :nom, :ape1, :ape2, :pass, :estado, :rol); 
+             END;`,
+            {
+                ced: cedula, nom: nombre, ape1: apellido1, ape2: apellido2,
+                pass: passFinal, 
+                estado: 1, // Activo
+                rol: 30    // Rol Cliente
+            }
+        );
+
+        // PASO 3: Actualizar Teléfono
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_ACTUALIZAR_SP(:ced, :tel); END;`,
+            { ced: cedula, tel: telefono }
+        );
+
+        res.json({ message: 'Cliente actualizado correctamente' });
+    } catch (err) {
+        console.error("Error actualizando:", err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+// 3. ELIMINAR CLIENTE (Borrado Lógico)
+app.delete('/api/clientes/:cedula', async (req, res) => {
+    const { cedula } = req.params;
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        // Tu SP de eliminar cliente ya hace el borrado lógico en cascada al usuario (según tu SQL)
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_ELIMINAR_SP(:ced); END;`,
+            { ced: cedula }
+        );
+        res.json({ message: 'Cliente eliminado (inactivo)' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+
+// 1. CREAR RESERVACIÓN
+app.post('/api/reservaciones', async (req, res) => {
+    const { fecha, horaInicio, horaFin, clienteId, direccionId } = req.body;
+    
+    // Generamos un ID numérico aleatorio (simulación de secuencia)
+    const idReserva = Math.floor(Math.random() * 100000);
+
+    // Construimos timestamps para Oracle (Fecha + Hora)
+    // Asumimos que fecha viene "YYYY-MM-DD" y horas "HH:mm"
+    const tsInicio = new Date(`${fecha}T${horaInicio}:00`);
+    const tsFin = new Date(`${fecha}T${horaFin}:00`);
+
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        await connection.execute(
+            `BEGIN 
+                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(
+                    :id, :fecha, :inicio, :fin, :cliente, :dir
+                ); 
+             END;`,
+            {
+                id: idReserva,
+                fecha: new Date(fecha), // Oracle driver maneja JS Date a DATE
+                inicio: tsInicio,       // Oracle driver maneja JS Date a TIMESTAMP
+                fin: tsFin,
+                cliente: clienteId,
+                dir: direccionId
+            }
+        );
+        res.status(201).json({ message: 'Reservación creada' });
+    } catch (err) {
+        console.error("Error crear reserva:", err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+// 2. EDITAR RESERVACIÓN
+app.put('/api/reservaciones/:id', async (req, res) => {
+    const { id } = req.params;
+    const { fecha, horaInicio, horaFin, clienteId, direccionId, estado } = req.body;
+
+    const tsInicio = new Date(`${fecha}T${horaInicio}:00`);
+    const tsFin = new Date(`${fecha}T${horaFin}:00`);
+
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        await connection.execute(
+            `BEGIN 
+                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_ACTUALIZAR_SP(
+                    :id, :fecha, :inicio, :fin, :estado, :cliente, :dir
+                ); 
+             END;`,
+            {
+                id: id,
+                fecha: new Date(fecha),
+                inicio: tsInicio,
+                fin: tsFin,
+                estado: estado,
+                cliente: clienteId,
+                dir: direccionId
+            }
+        );
+        res.json({ message: 'Reservación actualizada' });
+    } catch (err) {
+        console.error("Error actualizar reserva:", err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+// 3. CANCELAR RESERVACIÓN (Borrado Lógico)
+app.delete('/api/reservaciones/:id', async (req, res) => {
+    const { id } = req.params;
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_ELIMINAR_SP(:id); END;`,
+            { id: id }
+        );
+        res.json({ message: 'Reservación cancelada' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});

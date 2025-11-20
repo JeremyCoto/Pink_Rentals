@@ -8,94 +8,174 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="theme-dark">
-<header class="header">
-    <div class="container header-inner">
-        <div class="logo">
-            <h1><span class="pink-text">Pink</span> Rentals</h1>
-            <p class="tagline">PHOTOBOOTH</p>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo">
+                <h1><span class="pink-text">Pink</span> Rentals</h1>
+                <p class="tagline">PHOTOBOOTH</p>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="clientes.html" class="active">Clientes</a></li>
+                    <li><a href="reservaciones.html">Reservaciones</a></li>
+                    <li><a href="productos.html">Productos</a></li>
+                    <li><a href="servicios.html">Servicios</a></li>
+                </ul>
+            </nav>
+            <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
         </div>
-        <nav class="nav">
-            <ul>
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="clientes.html" class="active">Clientes</a></li>
-                <li><a href="reservaciones.html">Reservaciones</a></li>
-                <li><a href="productos.html">Productos</a></li>
-                <li><a href="servicios.html">Servicios</a></li>
-            </ul>
-        </nav>
-        <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
-    </div>
-</header>
+    </header>
 
-<section class="hero" style="padding:50px 0 36px;">
-    <div class="container">
-        <div class="hero-content">
-            <h2>Gestión de <span class="hero-highlight">Clientes</span></h2>
-            <p>Consulta rápida de clientes registrados y su ubicación.</p>
+    <section class="hero" style="padding:50px 0 36px;">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Gestión de <span class="hero-highlight">Clientes</span></h2>
+                <p>Consulta, crea y administra los clientes registrados en el sistema.</p>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="stats-section" style="padding:30px 0 10px;">
-    <div class="container">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon pink-bg"><span class="icon-emoji">👥</span></div>
-                <div class="stat-content">
-                    <h3 id="clientes-total" class="stat-number">0</h3>
-                    <p class="stat-label">Clientes Totales</p>
+    <section class="stats-section" style="padding:30px 0 10px;">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon pink-bg"><span class="icon-emoji">👥</span></div>
+                    <div class="stat-content">
+                        <h3 id="clientes-total" class="stat-number">0</h3>
+                        <p class="stat-label">Clientes Totales</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="activity-section">
-    <div class="container">
-        <div class="section-title">
-            <h2>Listado de <span class="pink-text">Clientes</span></h2>
-            <p>Información básica de contacto y ubicación.</p>
-        </div>
+    <section class="activity-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Listado de <span class="pink-text">Clientes</span></h2>
+                <p>Información de contacto y gestión de usuarios.</p>
+            </div>
 
-        <div class="filters-bar" style="margin-bottom:20px;">
-            <div class="search-box">
-                <input type="text" id="buscar-cliente" placeholder="Buscar por nombre o cédula...">
+            <div class="filters-bar" style="margin-bottom:20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div class="search-box" style="flex: 1; min-width: 250px;">
+                    <input type="text" id="buscar-cliente" placeholder="Buscar por nombre o cédula...">
+                </div>
+                
+                <button class="btn btn-primary" onclick="abrirModalCrear()">
+                    + Nuevo Cliente
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Cédula</th>
+                            <th>Nombre Completo</th>
+                            <th>Teléfono</th>
+                            <th>Fecha Registro</th> <th style="text-align: center;">Acciones</th> </tr>
+                    </thead>
+                    <tbody id="tabla-clientes">
+                        <tr>
+                            <td colspan="5" class="text-center" style="padding:40px;">Cargando clientes...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
+    </section>
 
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Cédula</th>
-                        <th>Nombre</th>
-                        <th>Provincia</th>
-                        <th>Cantón</th>
-                        <th>Distrito</th>
-                        <th>Fecha Registro</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-clientes">
-                    <tr>
-                        <td colspan="6" class="text-center" style="padding:40px;">Cargando clientes...</td>
-                    </tr>
-                </tbody>
-            </table>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 Pink Rentals | Photobooth.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="modal-cliente" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-titulo">Nuevo Cliente</h3>
+                <button class="close-modal" onclick="cerrarModal()">&times;</button>
+            </div>
+            <form id="form-cliente">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Cédula (Usuario)</label>
+                        <input type="text" id="cedula" required placeholder="Ej: 101110222">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="nombre" required placeholder="Nombre">
+                    </div>
+                    <div class="form-group">
+                        <label>Primer Apellido</label>
+                        <input type="text" id="apellido1" required placeholder="1er Apellido">
+                    </div>
+                    <div class="form-group">
+                        <label>Segundo Apellido</label>
+                        <input type="text" id="apellido2" placeholder="2do Apellido (Opcional)">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="telefono" required placeholder="Ej: 8888-8888">
+                    </div>
+                    
+                    <div class="form-group" id="grupo-password">
+                        <label>Contraseña Temporal</label>
+                        <input type="password" id="password" placeholder="Mínimo 4 caracteres">
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="cerrarModal()" style="background:#444; color:white; margin-right: 10px;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cliente</button>
+                </div>
+            </form>
         </div>
     </div>
-</section>
+    <style>
+        /* Estilos Forzados para el Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-<footer class="footer">
-    <div class="container">
-        <div class="footer-bottom">
-            <p>&copy; 2025 Pink Rentals | Photobooth.</p>
-        </div>
-    </div>
-</footer>
+        .modal-content {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid #333;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            color: white;
+        }
 
-<script src="js/utils.js"></script>
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
-<script src="js/clientes.js"></script>
-</body>
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .modal-header h3 { color: #FF1493; margin: 0; }
+        .close-modal { background: none; border: none; color: #aaa; font-size: 24px; cursor: pointer; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 12px; color: #ccc; margin-bottom: 5px; }
+        .form-group input {
+            background: #2d2d2d; border: 1px solid #444;
+            color: white; padding: 10px; border-radius: 6px;
+        }
+        .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
+    </style>
+    <script src="js/utils.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/clientes.js"></script>
+    </body>
 </html>

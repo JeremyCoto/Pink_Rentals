@@ -841,4 +841,140 @@ body.theme-light .servicio-card p {
     .footer-content {
         text-align: center;
     }
+
+
+    /* Estilos del Modal */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(4px);
+        z-index: 2000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-content {
+        background: #18181b; /* Color oscuro compatible con el tema */
+        padding: 30px;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 550px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        transform: translateY(0);
+        animation: slideUp 0.3s ease-out;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 15px;
+    }
+
+    .modal-header h3 {
+        color: var(--pink-primary, #FF1493);
+        font-size: 1.5rem;
+        margin: 0;
+    }
+
+    .close-modal {
+        background: none;
+        border: none;
+        color: #aaa;
+        font-size: 28px;
+        cursor: pointer;
+        line-height: 1;
+        transition: color 0.2s;
+    }
+
+    .close-modal:hover {
+        color: white;
+    }
+
+    /* Formulario Grid */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Dos columnas */
+        gap: 15px;
+    }
+
+    /* Que cédula, teléfono y password ocupen todo el ancho si se desea, 
+       o dejar en grid automático. Aquí forzamos algunos a ancho completo si es necesario */
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-size: 0.85rem;
+        color: #ccc;
+        margin-bottom: 6px;
+        font-weight: 500;
+    }
+
+    .form-group input {
+        padding: 10px 12px;
+        background: #222;
+        border: 1px solid #444;
+        border-radius: 8px;
+        color: white;
+        font-family: inherit;
+        font-size: 0.95rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+        border-color: var(--pink-primary, #FF1493);
+    }
+
+    .form-group input:disabled {
+        background: #333;
+        color: #777;
+        cursor: not-allowed;
+    }
+
+    .modal-footer {
+        margin-top: 25px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    /* Animaciones */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* Botones de acción en tabla */
+    .btn-icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 6px;
+        border-radius: 50%;
+        transition: background 0.2s, transform 0.2s;
+        margin: 0 2px;
+    }
+
+    .btn-icon:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.1);
+    }
+
+    .btn-icon.editar { color: #FFB300; } /* Amarillo */
+    .btn-icon.eliminar { color: #F44336; } /* Rojo */
+
+    /* Responsivo para el modal */
+    @media (max-width: 600px) {
+        .form-grid { grid-template-columns: 1fr; }
+    }
 }

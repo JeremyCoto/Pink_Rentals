@@ -47,5 +47,64 @@ const ApiService = {
     getPaquetesPorServicio: () => ApiService._fetch('paquetes-servicios'),
     getAsignaciones: () => ApiService._fetch('asignaciones'),
     getDetallesReserva: () => ApiService._fetch('detalles-reserva'),
-    getDetallesFactura: () => ApiService._fetch('detalles-factura')
+    getDetallesFactura: () => ApiService._fetch('detalles-factura'),
+
+
+    getClientes: () => ApiService._fetch('clientes'),
+    // NUEVOS MÉTODOS CRUD
+    crearCliente: async (cliente) => {
+        const res = await fetch(`${API_BASE}/clientes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cliente)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
+    },
+
+    actualizarCliente: async (cedula, cliente) => {
+        const res = await fetch(`${API_BASE}/clientes/${cedula}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cliente)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
+    },
+
+    eliminarCliente: async (cedula) => {
+        const res = await fetch(`${API_BASE}/clientes/${cedula}`, {
+            method: 'DELETE'
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
+    },
+
+    crearReservacion: async (data) => {
+        const res = await fetch(`${API_BASE}/reservaciones`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
+    },
+
+    actualizarReservacion: async (id, data) => {
+        const res = await fetch(`${API_BASE}/reservaciones/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
+    },
+
+    eliminarReservacion: async (id) => {
+        const res = await fetch(`${API_BASE}/reservaciones/${id}`, {
+            method: 'DELETE'
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
+    }
 };

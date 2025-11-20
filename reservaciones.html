@@ -8,83 +8,165 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="theme-dark">
-<header class="header">
-    <div class="container header-inner">
-        <div class="logo">
-            <h1><span class="pink-text">Pink</span> Rentals</h1>
-            <p class="tagline">PHOTOBOOTH</p>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo">
+                <h1><span class="pink-text">Pink</span> Rentals</h1>
+                <p class="tagline">PHOTOBOOTH</p>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="clientes.html">Clientes</a></li>
+                    <li><a href="reservaciones.html" class="active">Reservaciones</a></li>
+                    <li><a href="productos.html">Productos</a></li>
+                    <li><a href="servicios.html">Servicios</a></li>
+                </ul>
+            </nav>
+            <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
         </div>
-        <nav class="nav">
-            <ul>
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="clientes.html">Clientes</a></li>
-                <li><a href="reservaciones.html" class="active">Reservaciones</a></li>
-                <li><a href="productos.html">Productos</a></li>
-                <li><a href="servicios.html">Servicios</a></li>
-            </ul>
-        </nav>
-        <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
+    </header>
+
+    <section class="hero" style="padding:50px 0 36px;">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Agenda de <span class="hero-highlight">Reservaciones</span></h2>
+                <p>Control de eventos pendientes, confirmados y completados.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="activity-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Reservaciones <span class="pink-text">Registradas</span></h2>
+                <p>Gestión del calendario de eventos.</p>
+            </div>
+
+            <div class="filters-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:15px; flex-wrap:wrap;">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <label style="color:#ccc; font-size:13px;">Estado:</label>
+                    <select id="filtro-estado" style="padding:8px 14px; border-radius:999px;">
+                        <option value="">Todos</option>
+                        <option value="3">Pendiente</option>
+                        <option value="4">Completada</option>
+                        <option value="5">Cancelada</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="abrirModalCrear()">
+                    + Nueva Reservación
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Horario</th>
+                            <th>Ubicación (ID)</th>
+                            <th>Estado</th>
+                            <th style="text-align:center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-reservaciones">
+                        <tr><td colspan="7" class="text-center" style="padding:40px;">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 Pink Rentals | Reservaciones.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="modal-reserva" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-titulo">Nueva Reservación</h3>
+                <button class="close-modal" onclick="cerrarModal()">&times;</button>
+            </div>
+            <form id="form-reserva">
+                <input type="hidden" id="reserva-id">
+
+                <div class="form-grid">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Cliente (Buscar por Cédula o Nombre)</label>
+                        <input type="text" id="input-cliente" list="lista-clientes" placeholder="Escribe para buscar..." required>
+                        <datalist id="lista-clientes">
+                            </datalist>
+                        <input type="hidden" id="cliente-id-real">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha Evento</label>
+                        <input type="date" id="fecha" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ubicación (Dirección)</label>
+                        <select id="select-direccion" required style="padding:10px; background:#222; border:1px solid #444; color:white; border-radius:8px;">
+                            <option value="">Seleccione una ubicación...</option>
+                            </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hora Inicio</label>
+                        <input type="time" id="hora-inicio" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Hora Fin</label>
+                        <input type="time" id="hora-fin" required>
+                    </div>
+
+                    <div class="form-group" id="group-estado" style="display:none;">
+                        <label>Estado</label>
+                        <select id="select-estado" style="padding:10px; background:#222; border:1px solid #444; color:white; border-radius:8px;">
+                            <option value="3">Pendiente</option>
+                            <option value="4">Completada</option>
+                            <option value="5">Cancelada</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="cerrarModal()" style="background:#444; color:white; margin-right: 10px;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Reserva</button>
+                </div>
+            </form>
+        </div>
     </div>
-</header>
 
-<section class="hero" style="padding:50px 0 36px;">
-    <div class="container">
-        <div class="hero-content">
-            <h2>Agenda de <span class="hero-highlight">Reservaciones</span></h2>
-            <p>Control de eventos pendientes, confirmados y completados.</p>
-        </div>
-    </div>
-</section>
+    <style>
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; border: 1px solid #333; box-shadow: 0 20px 60px rgba(0,0,0,0.8); color: white; }
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .modal-header h3 { color: #FF1493; margin: 0; }
+        .close-modal { background: none; border: none; color: #aaa; font-size: 24px; cursor: pointer; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 12px; color: #ccc; margin-bottom: 5px; }
+        .form-group input { background: #2d2d2d; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; }
+        .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
+        
+        /* Botones tabla */
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 5px; transition: transform 0.2s; margin: 0 3px;}
+        .btn-icon:hover { transform: scale(1.2); }
+        .editar { color: #FFB300; }
+        .eliminar { color: #F44336; }
+    </style>
 
-<section class="activity-section">
-    <div class="container">
-        <div class="section-title">
-            <h2>Reservaciones <span class="pink-text">Registradas</span></h2>
-            <p>Filtra por estado para ver el estado actual del calendario.</p>
-        </div>
-
-        <div class="filters-bar" style="display:flex; gap:12px; margin-bottom:20px;">
-            <select id="filtro-estado" style="padding:8px 14px; border-radius:999px;">
-                <option value="">Todos los estados</option>
-                <option value="3">Pendiente</option>
-                <option value="4">Completada</option>
-                <option value="5">Cancelada</option>
-                <option value="6">Pagado</option>
-            </select>
-        </div>
-
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Evento</th>
-                        <th>Cliente</th>
-                        <th>Fecha Evento</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-reservaciones">
-                    <tr>
-                        <td colspan="5" class="text-center" style="padding:40px;">Cargando reservaciones...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</section>
-
-<footer class="footer">
-    <div class="container">
-        <div class="footer-bottom">
-            <p>&copy; 2025 Pink Rentals | Reservaciones.</p>
-        </div>
-    </div>
-</footer>
-
-<script src="js/utils.js"></script>
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
-<script src="js/reservaciones.js"></script>
-</body>
+    <script src="js/utils.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/reservaciones.js"></script>
+    </body>
 </html>
