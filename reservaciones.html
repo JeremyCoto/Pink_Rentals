@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservaciones | Pink Rentals</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-dark">
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">
+            <h1><span class="pink-text">Pink</span> Rentals</h1>
+            <p class="tagline">PHOTOBOOTH</p>
+        </div>
+        <nav class="nav">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="clientes.html">Clientes</a></li>
+                <li><a href="reservaciones.html" class="active">Reservaciones</a></li>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="servicios.html">Servicios</a></li>
+            </ul>
+        </nav>
+        <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
+    </div>
+</header>
+
+<section class="hero" style="padding:50px 0 36px;">
+    <div class="container">
+        <div class="hero-content">
+            <h2>Agenda de <span class="hero-highlight">Reservaciones</span></h2>
+            <p>Control de eventos pendientes, confirmados y completados.</p>
+        </div>
+    </div>
+</section>
+
+<section class="activity-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Reservaciones <span class="pink-text">Registradas</span></h2>
+            <p>Filtra por estado para ver el estado actual del calendario.</p>
+        </div>
+
+        <div class="filters-bar" style="display:flex; gap:12px; margin-bottom:20px;">
+            <select id="filtro-estado" style="padding:8px 14px; border-radius:999px;">
+                <option value="">Todos los estados</option>
+                <option value="3">Pendiente</option>
+                <option value="4">Completada</option>
+                <option value="5">Cancelada</option>
+                <option value="6">Pagado</option>
+            </select>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Evento</th>
+                        <th>Cliente</th>
+                        <th>Fecha Evento</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-reservaciones">
+                    <tr>
+                        <td colspan="5" class="text-center" style="padding:40px;">Cargando reservaciones...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom">
+            <p>&copy; 2025 Pink Rentals | Reservaciones.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="js/utils.js"></script>
+<script src="js/config.js"></script>
+<script src="database/mock-data.js"></script>
+<script src="js/reservaciones.js"></script>
+</body>
+</html>

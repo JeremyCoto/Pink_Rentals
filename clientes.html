@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes | Pink Rentals</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-dark">
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">
+            <h1><span class="pink-text">Pink</span> Rentals</h1>
+            <p class="tagline">PHOTOBOOTH</p>
+        </div>
+        <nav class="nav">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="clientes.html" class="active">Clientes</a></li>
+                <li><a href="reservaciones.html">Reservaciones</a></li>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="servicios.html">Servicios</a></li>
+            </ul>
+        </nav>
+        <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
+    </div>
+</header>
+
+<section class="hero" style="padding:50px 0 36px;">
+    <div class="container">
+        <div class="hero-content">
+            <h2>Gestión de <span class="hero-highlight">Clientes</span></h2>
+            <p>Consulta rápida de clientes registrados y su ubicación.</p>
+        </div>
+    </div>
+</section>
+
+<section class="stats-section" style="padding:30px 0 10px;">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon pink-bg"><span class="icon-emoji">👥</span></div>
+                <div class="stat-content">
+                    <h3 id="clientes-total" class="stat-number">0</h3>
+                    <p class="stat-label">Clientes Totales</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="activity-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Listado de <span class="pink-text">Clientes</span></h2>
+            <p>Información básica de contacto y ubicación.</p>
+        </div>
+
+        <div class="filters-bar" style="margin-bottom:20px;">
+            <div class="search-box">
+                <input type="text" id="buscar-cliente" placeholder="Buscar por nombre o cédula...">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Cédula</th>
+                        <th>Nombre</th>
+                        <th>Provincia</th>
+                        <th>Cantón</th>
+                        <th>Distrito</th>
+                        <th>Fecha Registro</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-clientes">
+                    <tr>
+                        <td colspan="6" class="text-center" style="padding:40px;">Cargando clientes...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom">
+            <p>&copy; 2025 Pink Rentals | Photobooth.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="js/utils.js"></script>
+<script src="js/config.js"></script>
+<script src="database/mock-data.js"></script>
+<script src="js/clientes.js"></script>
+</body>
+</html>

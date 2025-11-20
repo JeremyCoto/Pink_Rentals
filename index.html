@@ -3,28 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pink Rentals | Photobooth - Gestión de Clientes</title>
+    <title>Pink Rentals | Photobooth - Sistema de Gestión</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="theme-dark">
     <!-- Header -->
     <header class="header">
-        <div class="container">
+        <div class="container header-inner">
             <div class="logo">
                 <h1><span class="pink-text">Pink</span> Rentals</h1>
-                <p class="tagline">Photobooth</p>
+                <p class="tagline">PHOTOBOOTH</p>
             </div>
             <nav class="nav">
                 <ul>
-                    <li><a href="#inicio" class="active">Inicio</a></li>
-                    <li><a href="#clientes">Clientes</a></li>
-                    <li><a href="#eventos">Eventos</a></li>
-                    <li><a href="#servicios">Servicios</a></li>
+                    <li><a href="index.html" class="active">Inicio</a></li>
+                    <li><a href="clientes.html">Clientes</a></li>
+                    <li><a href="reservaciones.html">Reservaciones</a></li>
+                    <li><a href="productos.html">Productos</a></li>
+                    <li><a href="servicios.html">Servicios</a></li>
                 </ul>
             </nav>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Cambiar tema" onclick="PinkUtils.toggleTheme()">
+                🌓
+            </button>
         </div>
     </header>
 
@@ -32,258 +36,219 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h2>Gestión de <span class="pink-text">Clientes y Eventos</span></h2>
-                <p>Sistema de administración para Pink Rentals Photobooth</p>
+                <h2>Gestión de <span class="hero-highlight">Clientes y Reservaciones</span></h2>
+                <p>Panel administrativo para coordinar servicios de Pink Rentals Photobooth</p>
+                <div class="hero-badge">
+                    <span class="badge-icon">🔗</span>
+                    <span id="db-status">Conectado (Simulado) a Oracle</span>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Dashboard Stats -->
-    <section class="stats-section">
+    <section class="stats-section" id="inicio">
         <div class="container">
+            <div class="section-title">
+                <h2>Estadísticas <span class="pink-text">Generales</span></h2>
+                <p>Resumen ejecutivo del sistema</p>
+            </div>
+            
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon pink-bg">👥</div>
-                    <h3 id="total-clientes">0</h3>
-                    <p>Clientes Totales</p>
+                    <div class="stat-icon pink-bg">
+                        <span class="icon-emoji">👥</span>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="total-clientes" class="stat-number">0</h3>
+                        <p class="stat-label">Clientes Totales</p>
+                        <span class="stat-trend positive">↑ Activos</span>
+                    </div>
                 </div>
+
                 <div class="stat-card">
-                    <div class="stat-icon pink-bg">🎉</div>
-                    <h3 id="total-eventos">0</h3>
-                    <p>Eventos Realizados</p>
+                    <div class="stat-icon pink-bg">
+                        <span class="icon-emoji">🎉</span>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="total-reservaciones" class="stat-number">0</h3>
+                        <p class="stat-label">Reservaciones</p>
+                        <span class="stat-trend positive">↑ Este mes</span>
+                    </div>
                 </div>
+
                 <div class="stat-card">
-                    <div class="stat-icon pink-bg">📸</div>
-                    <h3 id="total-servicios">0</h3>
-                    <p>Servicios Activos</p>
+                    <div class="stat-icon pink-bg">
+                        <span class="icon-emoji">📦</span>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="total-productos" class="stat-number">0</h3>
+                        <p class="stat-label">Productos</p>
+                        <span class="stat-trend neutral">En inventario</span>
+                    </div>
                 </div>
+
                 <div class="stat-card">
-                    <div class="stat-icon pink-bg">⭐</div>
-                    <h3>4.9</h3>
-                    <p>Calificación</p>
+                    <div class="stat-icon pink-bg">
+                        <span class="icon-emoji">📸</span>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="total-servicios" class="stat-number">0</h3>
+                        <p class="stat-label">Servicios</p>
+                        <span class="stat-trend positive">Disponibles</span>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Gestión de Clientes -->
-    <section id="clientes" class="clientes-section">
+    <!-- Quick Actions -->
+    <section class="quick-actions-section">
         <div class="container">
-            <div class="section-header">
-                <h2>Gestión de <span class="pink-text">Clientes</span></h2>
-                <button class="btn btn-primary" id="btn-agregar-cliente">
-                    + Agregar Cliente
-                </button>
+            <div class="section-title">
+                <h2>Accesos <span class="pink-text">Rápidos</span></h2>
+                <p>Gestiona tu operación diaria desde un solo lugar</p>
             </div>
 
-            <!-- Filtros y Búsqueda -->
-            <div class="filters-bar">
-                <div class="search-box">
-                    <input type="text" id="buscar-cliente" placeholder="Buscar cliente por nombre, email o teléfono...">
-                    <span class="search-icon">🔍</span>
-                </div>
-            </div>
+            <div class="quick-actions-grid">
+                <a href="clientes.html" class="action-card">
+                    <div class="action-icon">
+                        <span>👥</span>
+                    </div>
+                    <h3>Gestionar Clientes</h3>
+                    <p>Consulta, filtra y administra tus clientes</p>
+                    <span class="action-arrow">→</span>
+                </a>
 
-            <!-- Tabla de Clientes -->
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Email</th>
-                            <th>Teléfono</th>
-                            <th>Fecha Registro</th>
-                            <th>Eventos</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-clientes">
-                        <tr id="mensaje-sin-clientes">
-                            <td colspan="7" class="text-center" style="padding: 40px;">
-                                <p style="font-size: 18px; color: #999;">No hay clientes registrados</p>
-                                <p style="font-size: 14px; color: #999;">Haz clic en "Agregar Cliente" para comenzar</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <a href="reservaciones.html" class="action-card">
+                    <div class="action-icon">
+                        <span>📅</span>
+                    </div>
+                    <h3>Agenda de Reservaciones</h3>
+                    <p>Control de eventos pendientes, confirmados y completados</p>
+                    <span class="action-arrow">→</span>
+                </a>
+
+                <a href="productos.html" class="action-card">
+                    <div class="action-icon">
+                        <span>📦</span>
+                    </div>
+                    <h3>Inventario</h3>
+                    <p>Productos, props y letras luminosas</p>
+                    <span class="action-arrow">→</span>
+                </a>
+
+                <a href="servicios.html" class="action-card">
+                    <div class="action-icon">
+                        <span>📸</span>
+                    </div>
+                    <h3>Catálogo de Servicios</h3>
+                    <p>Photobooths, video booths, pistas y más</p>
+                    <span class="action-arrow">→</span>
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- Gestión de Eventos -->
-    <section id="eventos" class="eventos-section">
+    <!-- Recent Activity -->
+    <section class="activity-section">
         <div class="container">
-            <div class="section-header">
-                <h2>Gestión de <span class="pink-text">Eventos</span></h2>
-                <button class="btn btn-primary" id="btn-agregar-evento">
-                    + Agregar Evento
-                </button>
+            <div class="section-title">
+                <h2>Actividad <span class="pink-text">Reciente</span></h2>
+                <p>Últimas reservaciones registradas</p>
             </div>
 
-            <!-- Tabla de Eventos -->
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Evento</th>
-                            <th>Cliente</th>
-                            <th>Fecha</th>
-                            <th>Tipo</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-eventos">
-                        <tr id="mensaje-sin-eventos">
-                            <td colspan="7" class="text-center" style="padding: 40px;">
-                                <p style="font-size: 18px; color: #999;">No hay eventos registrados</p>
-                                <p style="font-size: 14px; color: #999;">Haz clic en "Agregar Evento" para comenzar</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="activity-container">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Evento</th>
+                                <th>Cliente</th>
+                                <th>Fecha Evento</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-actividad-reciente">
+                            <tr>
+                                <td colspan="5" class="text-center" style="padding: 40px;">
+                                    <p style="font-size: 16px; color: #999;">Cargando actividad reciente...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Servicios -->
-    <section id="servicios" class="servicios-section">
+    <!-- Info Section / Sobre el sistema -->
+    <section class="info-section">
         <div class="container">
-            <div class="section-header">
-                <h2>Nuestros <span class="pink-text">Servicios</span></h2>
-            </div>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon">🎯</div>
+                    <h3>Visión del Sistema</h3>
+                    <p>Centralizar la gestión de eventos de Pink Rentals para ofrecer una experiencia ágil, ordenada y confiable tanto al equipo interno como a los clientes.</p>
+                    <span class="info-badge">Gestión integral de eventos</span>
+                </div>
 
-            <div class="servicios-grid">
-                <div class="servicio-card">
-                    <div class="servicio-icon">📸</div>
-                    <h3>Photobooth Clásico</h3>
-                    <p>Cabina fotográfica con impresión instantánea y props divertidos</p>
+                <div class="info-card">
+                    <div class="info-icon">🤝</div>
+                    <h3>Acerca de Pink Rentals</h3>
+                    <p>Pink Rentals es un sistema pensado para administrar clientes, reservaciones, servicios y productos utilizados en eventos con cabinas fotográficas y experiencias audiovisuales.</p>
+                    <span class="info-badge">Enfoque en servicio al cliente</span>
                 </div>
-                <div class="servicio-card">
-                    <div class="servicio-icon">💡</div>
-                    <h3>Letras Luminosas</h3>
-                    <p>Letras LED personalizadas para decorar tu evento</p>
-                </div>
-                <div class="servicio-card">
-                    <div class="servicio-icon">🎬</div>
-                    <h3>Video Booth</h3>
-                    <p>Cabina de video con efectos especiales y música</p>
-                </div>
-                <div class="servicio-card">
-                    <div class="servicio-icon">🪩</div>
-                    <h3>Pista LED</h3>
-                    <p>Pista de baile iluminada con efectos dinámicos</p>
+
+                <div class="info-card">
+                    <div class="info-icon">📈</div>
+                    <h3>Valor para el Negocio</h3>
+                    <p>El panel de control permite visualizar el estado de las reservaciones, el catálogo de servicios y el inventario, facilitando la toma de decisiones y el seguimiento operativo.</p>
+                    <span class="info-badge">Control y trazabilidad</span>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- Modal para Agregar/Editar Cliente -->
-    <div id="modal-cliente" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modal-cliente-titulo">Agregar Cliente</h2>
-                <span class="close" id="close-modal-cliente">&times;</span>
-            </div>
-            <form id="form-cliente">
-                <input type="hidden" id="cliente-id">
-                
-                <div class="form-group">
-                    <label for="cliente-nombre">Nombre Completo *</label>
-                    <input type="text" id="cliente-nombre" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="cliente-email">Email *</label>
-                    <input type="email" id="cliente-email" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="cliente-telefono">Teléfono *</label>
-                    <input type="tel" id="cliente-telefono" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="cliente-empresa">Empresa (Opcional)</label>
-                    <input type="text" id="cliente-empresa">
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="btn-cancelar-cliente">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Cliente</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal para Agregar/Editar Evento -->
-    <div id="modal-evento" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modal-evento-titulo">Agregar Evento</h2>
-                <span class="close" id="close-modal-evento">&times;</span>
-            </div>
-            <form id="form-evento">
-                <input type="hidden" id="evento-id">
-                
-                <div class="form-group">
-                    <label for="evento-nombre">Nombre del Evento *</label>
-                    <input type="text" id="evento-nombre" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="evento-cliente">Cliente *</label>
-                    <select id="evento-cliente" required>
-                        <option value="">Selecciona un cliente</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="evento-fecha">Fecha del Evento *</label>
-                    <input type="date" id="evento-fecha" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="evento-tipo">Tipo de Evento *</label>
-                    <select id="evento-tipo" required>
-                        <option value="">Selecciona un tipo</option>
-                        <option value="Boda">Boda</option>
-                        <option value="XV Años">XV Años</option>
-                        <option value="Cumpleaños">Cumpleaños</option>
-                        <option value="Corporativo">Corporativo</option>
-                        <option value="Graduación">Graduación</option>
-                        <option value="Otro">Otro</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="evento-estado">Estado *</label>
-                    <select id="evento-estado" required>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Confirmado">Confirmado</option>
-                        <option value="Completado">Completado</option>
-                        <option value="Cancelado">Cancelado</option>
-                    </select>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="btn-cancelar-evento">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Evento</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 Pink Rentals | Photobooth. Todos los derechos reservados.</p>
-            <p>Sistema de Gestión de Base de Datos</p>
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h3><span class="pink-text">Pink</span> Rentals</h3>
+                    <p>Sistema de Gestión de Base de Datos</p>
+                    <p>Bases de Datos · Segundo Avance</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="clientes.html">Clientes</a></li>
+                        <li><a href="reservaciones.html">Reservaciones</a></li>
+                        <li><a href="productos.html">Productos</a></li>
+                        <li><a href="servicios.html">Servicios</a></li>
+                    </ul>
+                </div>
+                <div class="footer-tech">
+                    <h4>Tecnologías</h4>
+                    <ul>
+                        <li>Oracle SQL Developer</li>
+                        <li>HTML5, CSS3, JavaScript</li>
+                        <li>Procedimientos Almacenados</li>
+                        <li>Vistas y Triggers</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Pink Rentals | Photobooth. Todos los derechos reservados.</p>
+            </div>
         </div>
     </footer>
 
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/config.js"></script>
+    <script src="database/mock-data.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
