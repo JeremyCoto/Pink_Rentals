@@ -1,40 +1,47 @@
 document.addEventListener('DOMContentLoaded', () => {
-    inicializarMockData();
-    cargarServicios();
+    cargarServiciosReales();
 });
 
-function cargarServicios() {
-    const servicios = JSON.parse(localStorage.getItem('mock_servicios')) || [];
+async function cargarServiciosReales() {
     const contenedor = document.getElementById('grid-servicios');
-    contenedor.innerHTML = '';
+    contenedor.innerHTML = '<p class="text-center">Cargando catálogo...</p>';
 
-    if (servicios.length === 0) {
-        contenedor.innerHTML = '<p class="text-center">No hay servicios configurados.</p>';
-        return;
-    }
+    try {
+        const servicios = await ApiService.getServicios();
+        contenedor.innerHTML = '';
 
-    servicios.forEach(s => {
-        const categoria = CATEGORIAS_SERVICIO[s.CATEGORIA_SERVICIO_ID_CATEGORIA_PK] || 'Servicio';
-        const icono = ICONOS_SERVICIOS[categoria] || '';
+        if (servicios.length === 0) {
+            contenedor.innerHTML = '<p class="text-center">No hay servicios en la Base de Datos.</p>';
+            return;
+        }
 
-        const card = document.createElement('div');
-        card.className = 'servicio-card';
+        servicios.forEach(s => {
+            // Atento a las mayúsculas/minúsculas. Usamos las del backend (minúsculas)
+            const catId = s.categoria_servicio_id_categoria_pk; 
+            const categoria = CATEGORIAS_SERVICIO[catId] || 'Servicio';
+            const icono = ICONOS_SERVICIOS[categoria] || '✨';
 
-        card.innerHTML = `
-            <div class="servicio-icon">${icono}</div>
-            <h3>${s.nombre}</h3>
-            <p>${s.descripcion}</p>
-            <p style="margin-top:10px; font-weight:600;">₡ ${s.precio.toLocaleString('es-CR')}</p>
-            <div class="servicio-footer">
-                <span class="info-badge">${categoria}</span>
-                <button class="btn btn-primary">+ Agregar</button>
-            </div>
-        `;
+            const card = document.createElement('div');
+            card.className = 'servicio-card';
 
-        card.querySelector('button').addEventListener('click', () => {
-            PinkUtils.mostrarToast(`Servicio "${s.nombre}" agregado (simulado)`, 'success');
+            card.innerHTML = `
+                <div class="servicio-icon">${icono}</div>
+                <h3>${s.nombre}</h3>
+                <p>${s.descripcion || 'Sin descripción'}</p>
+                <p style="margin-top:10px; font-weight:600;">₡ ${Number(s.precio).toLocaleString('es-CR')}</p>
+                <div class="servicio-footer">
+                    <span class="info-badge">${categoria}</span>
+                    <button class="btn btn-primary">+ Agregar</button>
+                </div>
+            `;
+
+            card.querySelector('button').addEventListener('click', () => {
+                PinkUtils.mostrarToast(`Servicio "${s.nombre}" seleccionado`, 'success');
+            });
+
+            contenedor.appendChild(card);
         });
-
-        contenedor.appendChild(card);
-    });
+    } catch (error) {
+        contenedor.innerHTML = '<p class="text-center error">Error de conexión</p>';
+    }
 }
