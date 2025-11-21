@@ -40,11 +40,17 @@
     <div class="container">
         <div class="section-title">
             <h2>Servicios <span class="pink-text">Disponibles</span></h2>
-            <p>Selección de servicios basada en la información de la base de datos.</p>
+            <p>Administra los paquetes y servicios que ofreces.</p>
+        </div>
+
+        <div class="filters-bar" style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+            <button class="btn btn-primary" onclick="abrirModalCrear()">
+                + Nuevo Servicio
+            </button>
         </div>
 
         <div id="grid-servicios" class="servicios-grid">
-            <!-- Cards generadas por JS -->
+            <p class="text-center" style="width:100%;">Cargando servicios...</p>
         </div>
     </div>
 </section>
@@ -56,6 +62,83 @@
         </div>
     </div>
 </footer>
+
+<div id="modal-servicio" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-titulo">Nuevo Servicio</h3>
+            <button class="close-modal" onclick="cerrarModal()">&times;</button>
+        </div>
+        <form id="form-servicio">
+            <input type="hidden" id="servicio-id">
+
+            <div class="form-grid">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Nombre del Servicio</label>
+                    <input type="text" id="nombre" required placeholder="Ej: Pista LED 3x3">
+                </div>
+
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Descripción</label>
+                    <input type="text" id="descripcion" placeholder="Detalles del servicio...">
+                </div>
+
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="select-categoria" required style="padding:10px; background:#222; border:1px solid #444; color:white; border-radius:8px;">
+                        <option value="">Seleccione...</option>
+                        </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Precio Base</label>
+                    <input type="number" id="precio" required min="0" step="0.01">
+                </div>
+
+                <div class="form-group" id="group-estado" style="display:none;">
+                    <label>Estado</label>
+                    <select id="select-estado" style="padding:10px; background:#222; border:1px solid #444; color:white; border-radius:8px;">
+                        <option value="1">Activo</option>
+                        <option value="2">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="cerrarModal()" style="background:#444; color:white; margin-right: 10px;">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar Servicio</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+    .modal-content { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #333; box-shadow: 0 20px 60px rgba(0,0,0,0.8); color: white; }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+    .modal-header h3 { color: #FF1493; margin: 0; }
+    .close-modal { background: none; border: none; color: #aaa; font-size: 24px; cursor: pointer; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group label { font-size: 12px; color: #ccc; margin-bottom: 5px; }
+    .form-group input { background: #2d2d2d; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; }
+    .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
+    
+    /* Estilos Tarjetas Servicios */
+    .servicio-card { position: relative; }
+    .servicio-actions {
+        position: absolute; top: 15px; right: 15px;
+        display: flex; gap: 5px;
+    }
+    .btn-mini {
+        background: rgba(255,255,255,0.1); border: none; color: white;
+        width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.2s;
+    }
+    .btn-mini:hover { background: rgba(255,20,147,0.5); }
+    .btn-mini.delete:hover { background: #F44336; }
+</style>
 
 <script src="js/utils.js"></script>
 <script src="js/config.js"></script>

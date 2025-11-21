@@ -106,5 +106,61 @@ const ApiService = {
         });
         if (!res.ok) throw new Error(await res.text());
         return await res.json();
+    },
+
+    crearProducto: async (data) => {
+        const res = await fetch(`${API_BASE}/productos`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
+    },
+
+    actualizarProducto: async (id, data) => {
+        const res = await fetch(`${API_BASE}/productos/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
+    },
+
+    eliminarProducto: async (id) => {
+        const res = await fetch(`${API_BASE}/productos/${id}`, {
+            method: 'DELETE'
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
+    },
+
+    crearServicio: async (data) => {
+        const res = await fetch(`${API_BASE}/servicios`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
+    },
+
+    actualizarServicio: async (id, data) => {
+        const res = await fetch(`${API_BASE}/servicios/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
+    },
+
+    eliminarServicio: async (id) => {
+        const res = await fetch(`${API_BASE}/servicios/${id}`, {
+            method: 'DELETE'
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
     }
 };

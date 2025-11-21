@@ -305,3 +305,172 @@ app.delete('/api/reservaciones/:id', async (req, res) => {
         if (connection) await connection.close();
     }
 });
+
+app.post('/api/productos', async (req, res) => {
+    const { nombre, descripcion, precio, cantidad, categoriaId } = req.body;
+    
+    // Generar ID aleatorio (simulando secuencia)
+    const idProducto = Math.floor(Math.random() * 100000);
+
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        await connection.execute(
+            `BEGIN 
+                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(
+                    :id, :nom, :desc, :prec, :cant, :cat
+                ); 
+             END;`,
+            {
+                id: idProducto,
+                nom: nombre,
+                desc: descripcion,
+                prec: precio,
+                cant: cantidad,
+                cat: categoriaId
+            }
+        );
+        res.status(201).json({ message: 'Producto creado' });
+    } catch (err) {
+        console.error("Error crear producto:", err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+// 2. EDITAR PRODUCTO
+app.put('/api/productos/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nombre, descripcion, precio, cantidad, categoriaId, estado } = req.body;
+
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        await connection.execute(
+            `BEGIN 
+                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_ACTUALIZAR_SP(
+                    :id, :nom, :desc, :prec, :cant, :cat, :estado
+                ); 
+             END;`,
+            {
+                id: id,
+                nom: nombre,
+                desc: descripcion,
+                prec: precio,
+                cant: cantidad,
+                cat: categoriaId,
+                estado: estado || 1 // Default activo si no viene
+            }
+        );
+        res.json({ message: 'Producto actualizado' });
+    } catch (err) {
+        console.error("Error actualizar producto:", err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+// 3. ELIMINAR PRODUCTO (Borrado Lógico)
+app.delete('/api/productos/:id', async (req, res) => {
+    const { id } = req.params;
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        // El SP por defecto pone estado 2 (inactivo)
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_ELIMINAR_SP(:id); END;`,
+            { id: id }
+        );
+        res.json({ message: 'Producto eliminado' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+app.post('/api/servicios', async (req, res) => {
+    const { nombre, descripcion, precio, categoriaId } = req.body;
+    
+    // ID aleatorio
+    const idServicio = Math.floor(Math.random() * 100000);
+
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        await connection.execute(
+            `BEGIN 
+                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_INSERTAR_SP(
+                    :id, :nom, :desc, :prec, :cat
+                ); 
+             END;`,
+            {
+                id: idServicio,
+                nom: nombre,
+                desc: descripcion,
+                prec: precio,
+                cat: categoriaId
+            }
+        );
+        res.status(201).json({ message: 'Servicio creado' });
+    } catch (err) {
+        console.error("Error crear servicio:", err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+// 2. EDITAR SERVICIO
+app.put('/api/servicios/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nombre, descripcion, precio, categoriaId, estado } = req.body;
+
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        await connection.execute(
+            `BEGIN 
+                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_ACTUALIZAR_SP(
+                    :id, :nom, :desc, :prec, :cat, :estado
+                ); 
+             END;`,
+            {
+                id: id,
+                nom: nombre,
+                desc: descripcion,
+                prec: precio,
+                cat: categoriaId,
+                estado: estado || 1
+            }
+        );
+        res.json({ message: 'Servicio actualizado' });
+    } catch (err) {
+        console.error("Error actualizar servicio:", err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+// 3. ELIMINAR SERVICIO (Borrado Lógico)
+app.delete('/api/servicios/:id', async (req, res) => {
+    const { id } = req.params;
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_ELIMINAR_SP(:id); END;`,
+            { id: id }
+        );
+        res.json({ message: 'Servicio eliminado' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
