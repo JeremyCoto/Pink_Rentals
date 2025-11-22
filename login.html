@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Pink Rentals</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Tus estilos de login se mantienen igual */
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #1a1a1a; }
+        .login-card { background: #2d2d2d; padding: 2rem; border-radius: 15px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid #333; }
+        .form-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #333; color: #fff; margin-bottom: 15px;}
+        .btn-login { width: 100%; background: #ff4081; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .error-msg { color: #ff5252; font-size: 0.85rem; display: none; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2><span class="pink-text">Pink</span> Rentals</h2>
+        <p style="color:#888; margin-bottom:20px;">Acceso al Sistema</p>
+        
+        <form id="loginForm">
+            <input type="text" id="cedula" class="form-control" required placeholder="Cédula">
+            <input type="password" id="password" class="form-control" required placeholder="Contraseña">
+            <button type="submit" class="btn-login">Ingresar</button>
+            <p id="errorMsg" class="error-msg"></p>
+        </form>
+        <p style="margin-top:20px; font-size:0.8rem;"><a href="index.html" style="color:#aaa;">← Volver al Inicio</a></p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const cedula = document.getElementById('cedula').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            try {
+                const res = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cedula, password })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    localStorage.setItem('pinkUser', JSON.stringify(data.user));
+                    // CAMBIO IMPORTANTE: Siempre redirigimos a index.html
+                    // index.html y main.js se encargarán de mostrar la interfaz correcta
+                    window.location.href = 'index.html';
+                } else {
+                    errorMsg.style.display = 'block';
+                    errorMsg.textContent = data.message || 'Credenciales inválidas';
+                }
+            } catch (err) {
+                console.error(err);
+                errorMsg.style.display = 'block';
+                errorMsg.textContent = 'Error de conexión';
+            }
+        });
+    </script>
+</body>
+</html>

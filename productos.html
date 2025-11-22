@@ -6,6 +6,14 @@
     <title>Productos | Pink Rentals</title>
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS PARA MODO INVITADO -->
+    <style>
+        /* Si el body tiene clase 'guest-view', ocultamos controles de admin */
+        .guest-view .admin-only { display: none !important; }
+        .guest-view th:last-child, 
+        .guest-view td:last-child { display: none !important; }
+    </style>
 </head>
 <body class="theme-dark">
 <header class="header">
@@ -15,15 +23,12 @@
             <p class="tagline">PHOTOBOOTH</p>
         </div>
         <nav class="nav">
-            <ul>
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="clientes.html">Clientes</a></li>
-                <li><a href="reservaciones.html">Reservaciones</a></li>
-                <li><a href="productos.html" class="active">Productos</a></li>
-                <li><a href="servicios.html">Servicios</a></li>
-            </ul>
+            <ul></ul> <!-- Se llena con main.js -->
         </nav>
-        <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <span id="userDisplay" style="font-size:0.8rem; color:#aaa;"></span>
+            <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
+        </div>
     </div>
 </header>
 
@@ -40,14 +45,12 @@
     <div class="container">
         <div class="section-title">
             <h2>Productos <span class="pink-text">Disponibles</span></h2>
-            <p>Gestión de inventario y stock.</p>
+            <p>Catálogo general.</p>
         </div>
 
-        <div class="filters-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:15px; flex-wrap:wrap;">
-            <div style="display:flex; gap:10px; align-items:center;">
-                </div>
-            
-            <button class="btn btn-primary" onclick="abrirModalCrear()">
+        <div class="filters-bar" style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+            <!-- Clase admin-only para ocultarlo a invitados -->
+            <button class="btn btn-primary admin-only" onclick="abrirModalCrear()">
                 + Nuevo Producto
             </button>
         </div>
@@ -82,6 +85,7 @@
     </div>
 </footer>
 
+<!-- Modal (Admin Only) -->
 <div id="modal-producto" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -90,35 +94,29 @@
         </div>
         <form id="form-producto">
             <input type="hidden" id="producto-id">
-
             <div class="form-grid">
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Nombre del Producto</label>
                     <input type="text" id="nombre" required placeholder="Ej: Letra Gigante A">
                 </div>
-
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Descripción</label>
                     <input type="text" id="descripcion" placeholder="Detalles del producto...">
                 </div>
-
                 <div class="form-group">
                     <label>Categoría</label>
                     <select id="select-categoria" required style="padding:10px; background:#222; border:1px solid #444; color:white; border-radius:8px;">
                         <option value="">Seleccione...</option>
-                        </select>
+                    </select>
                 </div>
-
                 <div class="form-group">
                     <label>Precio Unitario</label>
                     <input type="number" id="precio" required min="0" step="0.01">
                 </div>
-
                 <div class="form-group">
                     <label>Cantidad (Stock)</label>
                     <input type="number" id="cantidad" required min="0">
                 </div>
-
                 <div class="form-group" id="group-estado" style="display:none;">
                     <label>Estado</label>
                     <select id="select-estado" style="padding:10px; background:#222; border:1px solid #444; color:white; border-radius:8px;">
@@ -127,7 +125,6 @@
                     </select>
                 </div>
             </div>
-            
             <div class="modal-footer">
                 <button type="button" class="btn" onclick="cerrarModal()" style="background:#444; color:white; margin-right: 10px;">Cancelar</button>
                 <button type="submit" class="btn btn-primary">Guardar Producto</button>
@@ -137,6 +134,7 @@
 </div>
 
 <style>
+    /* Estilos del Modal */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 9999; display: flex; justify-content: center; align-items: center; }
     .modal-content { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #333; box-shadow: 0 20px 60px rgba(0,0,0,0.8); color: white; }
     .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
@@ -147,7 +145,6 @@
     .form-group label { font-size: 12px; color: #ccc; margin-bottom: 5px; }
     .form-group input { background: #2d2d2d; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; }
     .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
-    
     .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 5px; transition: transform 0.2s; margin: 0 3px;}
     .btn-icon:hover { transform: scale(1.2); }
     .editar { color: #FFB300; }
@@ -157,6 +154,25 @@
 <script src="js/utils.js"></script>
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
+<script src="js/main.js"></script>
 <script src="js/productos.js"></script>
+
+<!-- LÓGICA DE ADAPTACIÓN -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const userStr = localStorage.getItem('pinkUser');
+        let isAdmin = false;
+        
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            if (user.rol == 10 || user.rol == 20) isAdmin = true;
+        }
+
+        // Si NO es admin, activamos el modo invitado (Oculta botones y columnas de acción)
+        if (!isAdmin) {
+            document.body.classList.add('guest-view');
+        }
+    });
+</script>
 </body>
 </html>

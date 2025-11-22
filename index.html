@@ -3,244 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pink Rentals | Photobooth - Sistema de Gestión</title>
+    <title>Pink Rentals | Photobooth & Eventos</title>
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Adicional para los botones de Nav -->
+    <style>
+        .btn-nav-login { background: #ff4081; color: white; padding: 8px 15px; border-radius: 20px; text-decoration: none; font-weight: 500; font-size: 0.9rem; }
+        .btn-nav-login:hover { background: #e91e63; transform: scale(1.05); }
+        .btn-nav-logout { background: transparent; border: 1px solid #666; color: #ccc; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+        .btn-nav-logout:hover { border-color: #ff4081; color: #ff4081; }
+        .user-welcome { font-size: 0.9rem; color: #aaa; margin-right: 15px; }
+    </style>
 </head>
 <body class="theme-dark">
-    <!-- Header -->
+    
+    <!-- HEADER UNIVERSAL -->
     <header class="header">
         <div class="container header-inner">
             <div class="logo">
                 <h1><span class="pink-text">Pink</span> Rentals</h1>
                 <p class="tagline">PHOTOBOOTH</p>
             </div>
-            <nav class="nav">
-                <ul>
-                    <li><a href="index.html" class="active">Inicio</a></li>
-                    <li><a href="clientes.html">Clientes</a></li>
-                    <li><a href="reservaciones.html">Reservaciones</a></li>
-                    <li><a href="productos.html">Productos</a></li>
-                    <li><a href="servicios.html">Servicios</a></li>
-                </ul>
-            </nav>
-            <button id="theme-toggle" class="theme-toggle" aria-label="Cambiar tema" onclick="PinkUtils.toggleTheme()">
-                🌓
-            </button>
+            
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <!-- Menú Dinámico (Se llena con JS) -->
+                <nav class="nav">
+                    <ul>
+                        <!-- JS INYECTARÁ LI AQUÍ -->
+                    </ul>
+                </nav>
+
+                <!-- Área de Usuario -->
+                <div style="display: flex; align-items: center;">
+                    <span id="userDisplay" class="user-welcome"></span>
+                    <div id="authButtonContainer">
+                        <!-- JS INYECTARÁ BOTÓN LOGIN O LOGOUT -->
+                    </div>
+                </div>
+
+                <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
+            </div>
         </div>
     </header>
 
-    <!-- Hero Section -->
+    <!-- HERO SECTION (Siempre visible, cambia textos con JS) -->
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h2>Gestión de <span class="hero-highlight">Clientes y Reservaciones</span></h2>
-                <p>Panel administrativo para coordinar servicios de Pink Rentals Photobooth</p>
+                <h2 id="hero-title">Experiencias <span class="hero-highlight">Únicas</span></h2>
+                <p id="hero-desc">Alquiler de equipos de fotografía y video para eventos sociales y corporativos.</p>
                 <div class="hero-badge">
-                    <span class="badge-icon">🔗</span>
-                    <span id="db-status">Conectado (Simulado) a Oracle</span>
+                    <span class="badge-icon">✨</span>
+                    <span id="db-status">Calidad Premium</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Dashboard Stats -->
-    <section class="stats-section" id="inicio">
-        <div class="container">
-            <div class="section-title">
-                <h2>Estadísticas <span class="pink-text">Generales</span></h2>
-                <p>Resumen ejecutivo del sistema</p>
-            </div>
-            
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon pink-bg">
-                        <span class="icon-emoji">👥</span>
+    <!-- SECCIÓN SOLO ADMIN: DASHBOARD (Oculta por defecto) -->
+    <div id="admin-dashboard-section" style="display: none;">
+        <section class="stats-section" id="inicio">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Panel <span class="pink-text">Administrativo</span></h2>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon pink-bg"><span>👥</span></div>
+                        <div class="stat-content">
+                            <h3 id="total-clientes" class="stat-number">0</h3>
+                            <p class="stat-label">Clientes</p>
+                        </div>
                     </div>
-                    <div class="stat-content">
-                        <h3 id="total-clientes" class="stat-number">0</h3>
-                        <p class="stat-label">Clientes Totales</p>
-                        <span class="stat-trend positive">↑ Activos</span>
+                    <div class="stat-card">
+                        <div class="stat-icon pink-bg"><span>📅</span></div>
+                        <div class="stat-content">
+                            <h3 id="total-reservaciones" class="stat-number">0</h3>
+                            <p class="stat-label">Reservas</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon pink-bg"><span>📦</span></div>
+                        <div class="stat-content">
+                            <h3 id="total-productos" class="stat-number">0</h3>
+                            <p class="stat-label">Productos</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon pink-bg"><span>💰</span></div>
+                        <div class="stat-content">
+                            <h3 id="total-servicios" class="stat-number">0</h3>
+                            <p class="stat-label">Servicios</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon pink-bg">
-                        <span class="icon-emoji">🎉</span>
+                <!-- Actividad Reciente Admin -->
+                <div class="activity-section" style="margin-top: 30px;">
+                    <h3>Actividad Reciente</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>ID</th><th>Evento</th><th>Cliente</th><th>Fecha</th><th>Estado</th></tr>
+                            </thead>
+                            <tbody id="tabla-actividad-reciente"></tbody>
+                        </table>
                     </div>
-                    <div class="stat-content">
-                        <h3 id="total-reservaciones" class="stat-number">0</h3>
-                        <p class="stat-label">Reservaciones</p>
-                        <span class="stat-trend positive">↑ Este mes</span>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon pink-bg">
-                        <span class="icon-emoji">📦</span>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="total-productos" class="stat-number">0</h3>
-                        <p class="stat-label">Productos</p>
-                        <span class="stat-trend neutral">En inventario</span>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon pink-bg">
-                        <span class="icon-emoji">📸</span>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="total-servicios" class="stat-number">0</h3>
-                        <p class="stat-label">Servicios</p>
-                        <span class="stat-trend positive">Disponibles</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Quick Actions -->
-    <section class="quick-actions-section">
-        <div class="container">
-            <div class="section-title">
-                <h2>Accesos <span class="pink-text">Rápidos</span></h2>
-                <p>Gestiona tu operación diaria desde un solo lugar</p>
-            </div>
-
-            <div class="quick-actions-grid">
-                <a href="clientes.html" class="action-card">
-                    <div class="action-icon">
-                        <span>👥</span>
-                    </div>
-                    <h3>Gestionar Clientes</h3>
-                    <p>Consulta, filtra y administra tus clientes</p>
-                    <span class="action-arrow">→</span>
-                </a>
-
-                <a href="reservaciones.html" class="action-card">
-                    <div class="action-icon">
-                        <span>📅</span>
-                    </div>
-                    <h3>Agenda de Reservaciones</h3>
-                    <p>Control de eventos pendientes, confirmados y completados</p>
-                    <span class="action-arrow">→</span>
-                </a>
-
-                <a href="productos.html" class="action-card">
-                    <div class="action-icon">
-                        <span>📦</span>
-                    </div>
-                    <h3>Inventario</h3>
-                    <p>Productos, props y letras luminosas</p>
-                    <span class="action-arrow">→</span>
-                </a>
-
-                <a href="servicios.html" class="action-card">
-                    <div class="action-icon">
-                        <span>📸</span>
-                    </div>
-                    <h3>Catálogo de Servicios</h3>
-                    <p>Photobooths, video booths, pistas y más</p>
-                    <span class="action-arrow">→</span>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Recent Activity -->
-    <section class="activity-section">
-        <div class="container">
-            <div class="section-title">
-                <h2>Actividad <span class="pink-text">Reciente</span></h2>
-                <p>Últimas reservaciones registradas</p>
-            </div>
-
-            <div class="activity-container">
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Evento</th>
-                                <th>Cliente</th>
-                                <th>Fecha Evento</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-actividad-reciente">
-                            <tr>
-                                <td colspan="5" class="text-center" style="padding: 40px;">
-                                    <p style="font-size: 16px; color: #999;">Cargando actividad reciente...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 
-    <!-- Info Section / Sobre el sistema -->
-    <section class="info-section">
-        <div class="container">
-            <div class="info-grid">
-                <div class="info-card">
-                    <div class="info-icon">🎯</div>
-                    <h3>Visión del Sistema</h3>
-                    <p>Centralizar la gestión de eventos de Pink Rentals para ofrecer una experiencia ágil, ordenada y confiable tanto al equipo interno como a los clientes.</p>
-                    <span class="info-badge">Gestión integral de eventos</span>
-                </div>
-
-                <div class="info-card">
-                    <div class="info-icon">🤝</div>
-                    <h3>Acerca de Pink Rentals</h3>
-                    <p>Pink Rentals es un sistema pensado para administrar clientes, reservaciones, servicios y productos utilizados en eventos con cabinas fotográficas y experiencias audiovisuales.</p>
-                    <span class="info-badge">Enfoque en servicio al cliente</span>
-                </div>
-
-                <div class="info-card">
-                    <div class="info-icon">📈</div>
-                    <h3>Valor para el Negocio</h3>
-                    <p>El panel de control permite visualizar el estado de las reservaciones, el catálogo de servicios y el inventario, facilitando la toma de decisiones y el seguimiento operativo.</p>
-                    <span class="info-badge">Control y trazabilidad</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
+    <!-- FOOTER UNIVERSAL -->
     <footer class="footer">
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-info">
-                    <h3><span class="pink-text">Pink</span> Rentals</h3>
-                    <p>Sistema de Gestión de Base de Datos</p>
-                    <p>Bases de Datos · Segundo Avance</p>
-                </div>
-                <div class="footer-links">
-                    <h4>Enlaces Rápidos</h4>
-                    <ul>
-                        <li><a href="clientes.html">Clientes</a></li>
-                        <li><a href="reservaciones.html">Reservaciones</a></li>
-                        <li><a href="productos.html">Productos</a></li>
-                        <li><a href="servicios.html">Servicios</a></li>
-                    </ul>
-                </div>
-                <div class="footer-tech">
-                    <h4>Tecnologías</h4>
-                    <ul>
-                        <li>Oracle SQL Developer</li>
-                        <li>HTML5, CSS3, JavaScript</li>
-                        <li>Procedimientos Almacenados</li>
-                        <li>Vistas y Triggers</li>
-                    </ul>
-                </div>
-            </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 Pink Rentals | Photobooth. Todos los derechos reservados.</p>
+                <p>&copy; 2025 Pink Rentals | Sistema Integral.</p>
             </div>
         </div>
     </footer>

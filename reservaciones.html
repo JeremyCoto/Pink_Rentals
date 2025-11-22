@@ -6,6 +6,21 @@
     <title>Reservaciones | Pink Rentals</title>
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 🔒 SEGURIDAD ESTRICTA: SOLO ADMINS -->
+    <script>
+        try {
+            const userStr = localStorage.getItem('pinkUser');
+            if (!userStr) {
+                window.location.href = 'login.html';
+            } else {
+                const user = JSON.parse(userStr);
+                if (user.rol == 30) {
+                    window.location.href = 'cliente_dashboard.html';
+                }
+            }
+        } catch (e) { console.warn("Seguridad omitida en vista previa"); }
+    </script>
 </head>
 <body class="theme-dark">
     <header class="header">
@@ -15,15 +30,12 @@
                 <p class="tagline">PHOTOBOOTH</p>
             </div>
             <nav class="nav">
-                <ul>
-                    <li><a href="index.html">Inicio</a></li>
-                    <li><a href="clientes.html">Clientes</a></li>
-                    <li><a href="reservaciones.html" class="active">Reservaciones</a></li>
-                    <li><a href="productos.html">Productos</a></li>
-                    <li><a href="servicios.html">Servicios</a></li>
-                </ul>
+                <ul></ul>
             </nav>
-            <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <span id="userDisplay" style="font-size:0.8rem; color:#aaa;"></span>
+                <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
+            </div>
         </div>
     </header>
 
@@ -88,6 +100,7 @@
         </div>
     </footer>
 
+    <!-- Modal y estilos se mantienen igual -->
     <div id="modal-reserva" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -96,28 +109,24 @@
             </div>
             <form id="form-reserva">
                 <input type="hidden" id="reserva-id">
-
+                <!-- ... resto del formulario ... -->
                 <div class="form-grid">
                     <div class="form-group" style="grid-column: span 2;">
                         <label>Cliente (Buscar por Cédula o Nombre)</label>
                         <input type="text" id="input-cliente" list="lista-clientes" placeholder="Escribe para buscar..." required>
-                        <datalist id="lista-clientes">
-                            </datalist>
+                        <datalist id="lista-clientes"></datalist>
                         <input type="hidden" id="cliente-id-real">
                     </div>
-
                     <div class="form-group">
                         <label>Fecha Evento</label>
                         <input type="date" id="fecha" required>
                     </div>
-
                     <div class="form-group">
                         <label>Ubicación (Dirección)</label>
                         <select id="select-direccion" required style="padding:10px; background:#222; border:1px solid #444; color:white; border-radius:8px;">
                             <option value="">Seleccione una ubicación...</option>
-                            </select>
+                        </select>
                     </div>
-
                     <div class="form-group">
                         <label>Hora Inicio</label>
                         <input type="time" id="hora-inicio" required>
@@ -126,7 +135,6 @@
                         <label>Hora Fin</label>
                         <input type="time" id="hora-fin" required>
                     </div>
-
                     <div class="form-group" id="group-estado" style="display:none;">
                         <label>Estado</label>
                         <select id="select-estado" style="padding:10px; background:#222; border:1px solid #444; color:white; border-radius:8px;">
@@ -136,7 +144,6 @@
                         </select>
                     </div>
                 </div>
-                
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="cerrarModal()" style="background:#444; color:white; margin-right: 10px;">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar Reserva</button>
@@ -156,8 +163,6 @@
         .form-group label { font-size: 12px; color: #ccc; margin-bottom: 5px; }
         .form-group input { background: #2d2d2d; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; }
         .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
-        
-        /* Botones tabla */
         .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 5px; transition: transform 0.2s; margin: 0 3px;}
         .btn-icon:hover { transform: scale(1.2); }
         .editar { color: #FFB300; }
@@ -167,6 +172,7 @@
     <script src="js/utils.js"></script>
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
     <script src="js/reservaciones.js"></script>
-    </body>
+</body>
 </html>

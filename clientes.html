@@ -6,6 +6,21 @@
     <title>Clientes | Pink Rentals</title>
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 🔒 SEGURIDAD ESTRICTA: SOLO ADMINS -->
+    <script>
+        try {
+            const userStr = localStorage.getItem('pinkUser');
+            if (!userStr) {
+                window.location.href = 'login.html'; // Invitados fuera
+            } else {
+                const user = JSON.parse(userStr);
+                if (user.rol == 30) { // Clientes fuera
+                    window.location.href = 'cliente_dashboard.html';
+                }
+            }
+        } catch (e) { console.warn("Seguridad omitida en vista previa"); }
+    </script>
 </head>
 <body class="theme-dark">
     <header class="header">
@@ -14,16 +29,14 @@
                 <h1><span class="pink-text">Pink</span> Rentals</h1>
                 <p class="tagline">PHOTOBOOTH</p>
             </div>
+            <!-- El nav se llena dinámicamente con main.js, pero dejamos la estructura base -->
             <nav class="nav">
-                <ul>
-                    <li><a href="index.html">Inicio</a></li>
-                    <li><a href="clientes.html" class="active">Clientes</a></li>
-                    <li><a href="reservaciones.html">Reservaciones</a></li>
-                    <li><a href="productos.html">Productos</a></li>
-                    <li><a href="servicios.html">Servicios</a></li>
-                </ul>
+                <ul></ul> 
             </nav>
-            <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <span id="userDisplay" style="font-size:0.8rem; color:#aaa;"></span>
+                <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
+            </div>
         </div>
     </header>
 
@@ -74,7 +87,9 @@
                             <th>Cédula</th>
                             <th>Nombre Completo</th>
                             <th>Teléfono</th>
-                            <th>Fecha Registro</th> <th style="text-align: center;">Acciones</th> </tr>
+                            <th>Fecha Registro</th> 
+                            <th style="text-align: center;">Acciones</th> 
+                        </tr>
                     </thead>
                     <tbody id="tabla-clientes">
                         <tr>
@@ -94,6 +109,7 @@
         </div>
     </footer>
 
+    <!-- Modal y Estilos se mantienen igual -->
     <div id="modal-cliente" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -137,45 +153,21 @@
         </div>
     </div>
     <style>
-        /* Estilos Forzados para el Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: #1e1e1e;
-            padding: 30px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            border: 1px solid #333;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-            color: white;
-        }
-
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #333; box-shadow: 0 20px 60px rgba(0,0,0,0.8); color: white; }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .modal-header h3 { color: #FF1493; margin: 0; }
         .close-modal { background: none; border: none; color: #aaa; font-size: 24px; cursor: pointer; }
-        
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .form-group { display: flex; flex-direction: column; }
         .form-group label { font-size: 12px; color: #ccc; margin-bottom: 5px; }
-        .form-group input {
-            background: #2d2d2d; border: 1px solid #444;
-            color: white; padding: 10px; border-radius: 6px;
-        }
+        .form-group input { background: #2d2d2d; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; }
         .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
     </style>
     <script src="js/utils.js"></script>
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/main.js"></script> <!-- Agregamos main.js para el menú -->
     <script src="js/clientes.js"></script>
-    </body>
+</body>
 </html>

@@ -7,226 +7,66 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT; // Retorna objetos { COLUMNA: VALOR }
+oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
+oracledb.autoCommit = true;
 
-// ==========================================
-// 1. CONFIGURACIÓN DE BASE DE DATOS
-// ==========================================
 const dbConfig = {
-    user: "G2_SC508_VT_PROYECTO",    // Tu usuario real
-    password: "1234",                // Tu contraseña real (la del script SQL)
-    connectString: "localhost:1521/xe" // O intenta "localhost:1521/xe" si usas Express Edition
+    user: "G2_SC508_VT_PROYECTO",
+    password: "1234",
+    connectString: "localhost:1521/xe"
 };
 
 // ==========================================
-// 2. MAPA DE RUTAS (CONFIGURACIÓN CENTRAL)
-// Aquí definimos qué URL llama a qué Procedimiento
+// 1. AUTENTICACIÓN (LOGIN)
 // ==========================================
-const TABLE_ENDPOINTS = {
-    'estados':             'FIDE_ESTADOS_LISTAR_SP',
-    'roles':               'FIDE_ROLES_LISTAR_SP',
-    'provincias':          'FIDE_PROVINCIA_LISTAR_SP',
-    'metodos-pago':        'FIDE_METODO_PAGO_LISTAR_SP',
-    'categorias-producto': 'FIDE_CATEGORIA_PRODUCTO_LISTAR_SP',
-    'categorias-servicio': 'FIDE_CATEGORIA_SERVICIO_LISTAR_SP',
-    'paquetes':            'FIDE_PAQUETE_LISTAR_SP',
-    'cantones':            'FIDE_CANTON_LISTAR_SP',
-    'distritos':           'FIDE_DISTRITO_LISTAR_SP',
-    'usuarios':            'FIDE_USUARIOS_LISTAR_SP',
-    'productos':           'FIDE_PRODUCTOS_LISTAR_SP',
-    'servicios':           'FIDE_SERVICIOS_LISTAR_SP',
-    'pagos':               'FIDE_PAGOS_LISTAR_SP',
-    'clientes':            'FIDE_CLIENTES_LISTAR_SP',
-    'empleados':           'FIDE_EMPLEADOS_LISTAR_SP',
-    'correos':             'FIDE_CORREO_LISTAR_SP',
-    'direcciones':         'FIDE_DIRECCIONES_LISTAR_SP',
-    'reservaciones':       'FIDE_RESERVACIONES_LISTAR_SP',
-    'paquetes-servicios':  'FIDE_PAQUETES_POR_SERV_LISTAR_SP',
-    'asignaciones':        'FIDE_ASIGNACION_LISTAR_SP',
-    'detalles-reserva':    'FIDE_DETALLE_RES_LISTAR_SP',
-    'facturas':            'FIDE_FACTURACION_LISTAR_SP',
-    'detalles-factura':    'FIDE_DETALLE_FACT_LISTAR_SP'
-};
-
-// ==========================================
-// 3. GENERADOR AUTOMÁTICO DE RUTAS (GET)
-// ==========================================
-Object.entries(TABLE_ENDPOINTS).forEach(([route, spName]) => {
-    app.get(`/api/${route}`, async (req, res) => {
-        await ejecutarConsulta(res, spName);
-    });
-});
-
-// ==========================================
-// 4. FUNCIÓN GENÉRICA DE EJECUCIÓN
-// ==========================================
-async function ejecutarConsulta(res, spName) {
+app.post('/api/login', async (req, res) => {
+    const { cedula, password } = req.body;
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        
-        // Ejecuta el SP
         const result = await connection.execute(
-            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.${spName}(:cursor); END;`,
-            { cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT } }
+            `SELECT USUARIOS_ID_CEDULA_PK, NOMBRE, PRIMER_APELLIDO, ROLES_ID_ROL_PK 
+             FROM G2_SC508_VT_PROYECTO.FIDE_USUARIOS_TB 
+             WHERE USUARIOS_ID_CEDULA_PK = :ced AND CONTRASENA = :pass AND ESTADOS_ID_ESTADO_PK = 1`,
+            [cedula, password]
         );
 
-        const resultSet = result.outBinds.cursor;
-        const rows = await resultSet.getRows(); // Obtiene filas crudas
-        await resultSet.close();
-
-        // TRANSFORMACIÓN DE DATOS (OPCIÓN B)
-        // Convierte claves MAYÚSCULAS a minúsculas
-        const datosFormateados = rows.map(row => {
-            const objLimpio = {};
-            Object.keys(row).forEach(key => {
-                objLimpio[key.toLowerCase()] = row[key];
+        if (result.rows.length > 0) {
+            const user = result.rows[0];
+            res.json({ 
+                success: true, 
+                user: {
+                    cedula: user.USUARIOS_ID_CEDULA_PK,
+                    nombre: `${user.NOMBRE} ${user.PRIMER_APELLIDO}`,
+                    rol: user.ROLES_ID_ROL_PK
+                }
             });
-            return objLimpio;
-        });
-
-        res.json(datosFormateados);
-
-    } catch (err) {
-        console.error(`Error en ${spName}:`, err);
-        res.status(500).send({ error: 'Error de base de datos', detalle: err.message });
-    } finally {
-        if (connection) {
-            try { await connection.close(); } catch (e) { console.error(e); }
+        } else {
+            res.status(401).json({ success: false, message: 'Credenciales inválidas' });
         }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
     }
-}
-
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`✅ API Pink Rentals corriendo en http://localhost:${PORT}`);
-    console.log(`📡 Sirviendo ${Object.keys(TABLE_ENDPOINTS).length} tablas automáticamente.`);
 });
 
 // ==========================================
-// CRUD DE CLIENTES (Transacciones Compuestas)
+// 2. TRANSACCIÓN COMPLEJA: CHECKOUT
 // ==========================================
-
-// 1. CREAR CLIENTE (Crea Usuario + Crea Cliente)
-app.post('/api/clientes', async (req, res) => {
-    const { cedula, nombre, apellido1, apellido2, telefono, password } = req.body;
+app.post('/api/checkout', async (req, res) => {
+    const { clienteId, fecha, horaInicio, horaFin, direccionId, items, total } = req.body;
+    
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
         
-        // A. Crear Usuario (Rol 30 = Cliente)
-        await connection.execute(
-            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP(:ced, :nom, :ape1, :ape2, :pass, :rol); END;`,
-            {
-                ced: cedula, nom: nombre, ape1: apellido1, ape2: apellido2,
-                pass: password || 'Pink123', // Contraseña por defecto o la enviada
-                rol: 30 // ROL 30 ES CLIENTE
-            }
-        );
+        const idReserva = Math.floor(Math.random() * 1000000);
+        const idFactura = Math.floor(Math.random() * 1000000);
+        const tsInicio = new Date(`${fecha}T${horaInicio}:00`);
+        const tsFin = new Date(`${fecha}T${horaFin}:00`);
 
-        // B. Crear Registro Cliente (Teléfono)
-        await connection.execute(
-            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP(:ced, :tel); END;`,
-            { ced: cedula, tel: telefono }
-        );
-
-        res.status(201).json({ message: 'Cliente creado exitosamente' });
-    } catch (err) {
-        console.error("Error creando cliente:", err);
-        res.status(500).json({ error: err.message });
-    } finally {
-        if (connection) await connection.close();
-    }
-});
-
-// 2. ACTUALIZAR CLIENTE (Versión Segura)
-app.put('/api/clientes/:cedula', async (req, res) => {
-    const { cedula } = req.params;
-    const { nombre, apellido1, apellido2, telefono, estado, password } = req.body; // Agregamos password aquí
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-
-        // PASO 1: Si no enviaron contraseña nueva, hay que buscar la vieja para no perderla
-        let passFinal = password;
-        if (!password) {
-            const resultUser = await connection.execute(
-                `SELECT contrasena FROM G2_SC508_VT_PROYECTO.FIDE_USUARIOS_TB WHERE USUARIOS_ID_CEDULA_PK = :id`,
-                [cedula]
-            );
-            if (resultUser.rows.length > 0) {
-                // oracledb devuelve objeto o array según config. Aquí aseguramos obtener el string.
-                // Si usas outFormat OBJECT: resultUser.rows[0].CONTRASENA
-                // Si usas outFormat ARRAY: resultUser.rows[0][0]
-                const row = resultUser.rows[0];
-                passFinal = row.CONTRASENA || row[0]; 
-            }
-        }
-
-        // PASO 2: Actualizar Usuario con la contraseña correcta (nueva o vieja)
-        await connection.execute(
-            `BEGIN 
-                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_ACTUALIZAR_SP(:ced, :nom, :ape1, :ape2, :pass, :estado, :rol); 
-             END;`,
-            {
-                ced: cedula, nom: nombre, ape1: apellido1, ape2: apellido2,
-                pass: passFinal, 
-                estado: 1, // Activo
-                rol: 30    // Rol Cliente
-            }
-        );
-
-        // PASO 3: Actualizar Teléfono
-        await connection.execute(
-            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_ACTUALIZAR_SP(:ced, :tel); END;`,
-            { ced: cedula, tel: telefono }
-        );
-
-        res.json({ message: 'Cliente actualizado correctamente' });
-    } catch (err) {
-        console.error("Error actualizando:", err);
-        res.status(500).json({ error: err.message });
-    } finally {
-        if (connection) await connection.close();
-    }
-});
-
-// 3. ELIMINAR CLIENTE (Borrado Lógico)
-app.delete('/api/clientes/:cedula', async (req, res) => {
-    const { cedula } = req.params;
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        // Tu SP de eliminar cliente ya hace el borrado lógico en cascada al usuario (según tu SQL)
-        await connection.execute(
-            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_ELIMINAR_SP(:ced); END;`,
-            { ced: cedula }
-        );
-        res.json({ message: 'Cliente eliminado (inactivo)' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err.message });
-    } finally {
-        if (connection) await connection.close();
-    }
-});
-
-
-// 1. CREAR RESERVACIÓN
-app.post('/api/reservaciones', async (req, res) => {
-    const { fecha, horaInicio, horaFin, clienteId, direccionId } = req.body;
-    
-    // Generamos un ID numérico aleatorio (simulación de secuencia)
-    const idReserva = Math.floor(Math.random() * 100000);
-
-    // Construimos timestamps para Oracle (Fecha + Hora)
-    // Asumimos que fecha viene "YYYY-MM-DD" y horas "HH:mm"
-    const tsInicio = new Date(`${fecha}T${horaInicio}:00`);
-    const tsFin = new Date(`${fecha}T${horaFin}:00`);
-
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
+        // Insertar Reserva con Dirección Real
         await connection.execute(
             `BEGIN 
                 G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(
@@ -234,243 +74,323 @@ app.post('/api/reservaciones', async (req, res) => {
                 ); 
              END;`,
             {
-                id: idReserva,
-                fecha: new Date(fecha), // Oracle driver maneja JS Date a DATE
-                inicio: tsInicio,       // Oracle driver maneja JS Date a TIMESTAMP
-                fin: tsFin,
-                cliente: clienteId,
-                dir: direccionId
+                id: idReserva, fecha: new Date(fecha), inicio: tsInicio, fin: tsFin,
+                cliente: clienteId, 
+                dir: direccionId 
+            },
+            { autoCommit: false }
+        );
+
+        let lineaReserva = 1;
+        let lineaFactura = 1;
+
+        for (const item of items) {
+            if (item.tipo === 'servicio') {
+                await connection.execute(
+                    `BEGIN 
+                        G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(
+                            :res_id, :linea, :cant, :precio, :serv_id, :paq_id
+                        ); 
+                     END;`,
+                    {
+                        res_id: idReserva, linea: lineaReserva++, cant: 1, 
+                        precio: item.precio, serv_id: item.id, paq_id: null
+                    },
+                    { autoCommit: false }
+                );
+
+                await connection.execute(
+                    `BEGIN 
+                        G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(
+                            :fact_id, :linea, :cant, :precio, :subtotal, :serv_id
+                        ); 
+                     END;`,
+                    {
+                        fact_id: idFactura, linea: lineaFactura++, cant: 1,
+                        precio: item.precio, subtotal: item.precio, serv_id: item.id
+                    },
+                    { autoCommit: false }
+                );
+            } else if (item.tipo === 'producto') {
+                 const idAsignacion = Math.floor(Math.random() * 1000000);
+                 await connection.execute(
+                    `BEGIN 
+                        G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(
+                            :id_asig, :notas, :prod_id, :res_id
+                        ); 
+                     END;`,
+                    {
+                        id_asig: idAsignacion, notas: 'Producto Web',
+                        prod_id: item.id, res_id: idReserva
+                    },
+                    { autoCommit: false }
+                );
             }
+        }
+
+        const impuesto = total * 0.13;
+        const granTotal = total + impuesto;
+
+        await connection.execute(
+            `BEGIN 
+                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(
+                    :fact_id, :fecha, :monto, :imp, :det, :pago_id, :res_id
+                ); 
+             END;`,
+            {
+                fact_id: idFactura, fecha: new Date(), monto: granTotal, imp: impuesto,
+                det: 'Compra Web', pago_id: 1, res_id: idReserva
+            },
+            { autoCommit: false }
+        );
+
+        await connection.commit();
+        res.json({ success: true, reservaId: idReserva });
+
+    } catch (err) {
+        console.error("Rollback:", err);
+        if (connection) try { await connection.rollback(); } catch (e) {}
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+// ==========================================
+// 3. RUTAS DE LECTURA (GET GENÉRICOS)
+// ==========================================
+const TABLE_ENDPOINTS = {
+    'estados': 'FIDE_ESTADOS_LISTAR_SP',
+    'roles': 'FIDE_ROLES_LISTAR_SP',
+    'provincias': 'FIDE_PROVINCIA_LISTAR_SP',
+    'cantones': 'FIDE_CANTON_LISTAR_SP',
+    'distritos': 'FIDE_DISTRITO_LISTAR_SP',
+    'direcciones': 'FIDE_DIRECCIONES_LISTAR_SP', 
+    'clientes': 'FIDE_CLIENTES_LISTAR_SP',
+    'reservaciones': 'FIDE_RESERVACIONES_LISTAR_SP',
+    'productos': 'FIDE_PRODUCTOS_LISTAR_SP',
+    'servicios': 'FIDE_SERVICIOS_LISTAR_SP',
+    'detalles-reserva': 'FIDE_DETALLE_RES_LISTAR_SP',
+    'asignaciones': 'FIDE_ASIGNACION_LISTAR_SP',
+    'facturas': 'FIDE_FACTURACION_LISTAR_SP',
+    'metodos-pago': 'FIDE_METODO_PAGO_LISTAR_SP',
+    'categorias-producto': 'FIDE_CATEGORIA_PRODUCTO_LISTAR_SP',
+    'categorias-servicio': 'FIDE_CATEGORIA_SERVICIO_LISTAR_SP',
+    'paquetes': 'FIDE_PAQUETE_LISTAR_SP',
+    'usuarios': 'FIDE_USUARIOS_LISTAR_SP',
+    'pagos': 'FIDE_PAGOS_LISTAR_SP',
+    'empleados': 'FIDE_EMPLEADOS_LISTAR_SP',
+    'correos': 'FIDE_CORREO_LISTAR_SP',
+    'paquetes-servicios': 'FIDE_PAQUETES_POR_SERV_LISTAR_SP',
+    'detalles-factura': 'FIDE_DETALLE_FACT_LISTAR_SP'
+};
+
+Object.entries(TABLE_ENDPOINTS).forEach(([route, spName]) => {
+    app.get(`/api/${route}`, async (req, res) => {
+        ejecutarConsulta(res, spName);
+    });
+});
+
+async function ejecutarConsulta(res, spName) {
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        const result = await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.${spName}(:cursor); END;`,
+            { cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT } }
+        );
+        const resultSet = result.outBinds.cursor;
+        const rows = await resultSet.getRows();
+        await resultSet.close();
+        
+        const data = rows.map(row => {
+            const obj = {};
+            Object.keys(row).forEach(key => obj[key.toLowerCase()] = row[key]);
+            return obj;
+        });
+        res.json(data);
+    } catch (err) {
+        res.status(500).send(err.message);
+    } finally {
+        if (connection) await connection.close();
+    }
+}
+
+// ==========================================
+// 4. CRUDS ESPECÍFICOS
+// ==========================================
+
+// --- CLIENTES ---
+app.post('/api/clientes', async (req, res) => {
+    const { cedula, nombre, apellido1, apellido2, telefono, password } = req.body;
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP(:ced, :nom, :ape1, :ape2, :pass, :rol); END;`,
+            { ced: cedula, nom: nombre, ape1: apellido1, ape2: apellido2, pass: password || 'Pink123', rol: 30 }
+        );
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP(:ced, :tel); END;`,
+            { ced: cedula, tel: telefono }
+        );
+        res.status(201).json({ message: 'Cliente creado' });
+    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
+});
+
+app.put('/api/clientes/:cedula', async (req, res) => {
+    const { cedula } = req.params;
+    const { nombre, apellido1, apellido2, telefono, password } = req.body;
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        let passFinal = password;
+        if (!password) {
+            const r = await connection.execute(`SELECT contrasena FROM G2_SC508_VT_PROYECTO.FIDE_USUARIOS_TB WHERE USUARIOS_ID_CEDULA_PK=:c`, [cedula]);
+            if(r.rows.length > 0) passFinal = r.rows[0].CONTRASENA;
+        }
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_ACTUALIZAR_SP(:c, :n, :a1, :a2, :p, 1, 30); END;`,
+            { c: cedula, n: nombre, a1: apellido1, a2: apellido2, p: passFinal }
+        );
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_ACTUALIZAR_SP(:c, :t); END;`,
+            { c: cedula, t: telefono }
+        );
+        res.json({ message: 'Cliente actualizado' });
+    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
+});
+
+app.delete('/api/clientes/:cedula', async (req, res) => {
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_ELIMINAR_SP(:c); END;`, { c: req.params.cedula });
+        res.json({ message: 'Cliente eliminado' });
+    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
+});
+
+// --- RESERVACIONES (ADMIN) ---
+app.post('/api/reservaciones', async (req, res) => {
+    const { fecha, horaInicio, horaFin, clienteId, direccionId } = req.body;
+    const idReserva = Math.floor(Math.random() * 100000);
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        const tsInicio = new Date(`${fecha}T${horaInicio}:00`);
+        const tsFin = new Date(`${fecha}T${horaFin}:00`);
+        
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(:id, :f, :i, :fn, :c, :d); END;`,
+            { id: idReserva, f: new Date(fecha), i: tsInicio, fn: tsFin, c: clienteId, d: direccionId }
         );
         res.status(201).json({ message: 'Reservación creada' });
-    } catch (err) {
-        console.error("Error crear reserva:", err);
-        res.status(500).json({ error: err.message });
-    } finally {
-        if (connection) await connection.close();
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
 });
 
-// 2. EDITAR RESERVACIÓN
 app.put('/api/reservaciones/:id', async (req, res) => {
-    const { id } = req.params;
     const { fecha, horaInicio, horaFin, clienteId, direccionId, estado } = req.body;
-
-    const tsInicio = new Date(`${fecha}T${horaInicio}:00`);
-    const tsFin = new Date(`${fecha}T${horaFin}:00`);
-
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
+        const tsInicio = new Date(`${fecha}T${horaInicio}:00`);
+        const tsFin = new Date(`${fecha}T${horaFin}:00`);
+
         await connection.execute(
-            `BEGIN 
-                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_ACTUALIZAR_SP(
-                    :id, :fecha, :inicio, :fin, :estado, :cliente, :dir
-                ); 
-             END;`,
-            {
-                id: id,
-                fecha: new Date(fecha),
-                inicio: tsInicio,
-                fin: tsFin,
-                estado: estado,
-                cliente: clienteId,
-                dir: direccionId
-            }
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_ACTUALIZAR_SP(:id, :f, :i, :fn, :e, :c, :d); END;`,
+            { id: req.params.id, f: new Date(fecha), i: tsInicio, fn: tsFin, e: estado, c: clienteId, d: direccionId }
         );
         res.json({ message: 'Reservación actualizada' });
-    } catch (err) {
-        console.error("Error actualizar reserva:", err);
-        res.status(500).json({ error: err.message });
-    } finally {
-        if (connection) await connection.close();
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
 });
 
-// 3. CANCELAR RESERVACIÓN (Borrado Lógico)
 app.delete('/api/reservaciones/:id', async (req, res) => {
-    const { id } = req.params;
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(
-            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_ELIMINAR_SP(:id); END;`,
-            { id: id }
-        );
+        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_ELIMINAR_SP(:id); END;`, { id: req.params.id });
         res.json({ message: 'Reservación cancelada' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err.message });
-    } finally {
-        if (connection) await connection.close();
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
 });
 
+// --- PRODUCTOS ---
 app.post('/api/productos', async (req, res) => {
     const { nombre, descripcion, precio, cantidad, categoriaId } = req.body;
-    
-    // Generar ID aleatorio (simulando secuencia)
-    const idProducto = Math.floor(Math.random() * 100000);
-
+    const id = Math.floor(Math.random() * 100000);
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
         await connection.execute(
-            `BEGIN 
-                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(
-                    :id, :nom, :desc, :prec, :cant, :cat
-                ); 
-             END;`,
-            {
-                id: idProducto,
-                nom: nombre,
-                desc: descripcion,
-                prec: precio,
-                cant: cantidad,
-                cat: categoriaId
-            }
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(:id, :n, :d, :p, :c, :cat); END;`,
+            { id: id, n: nombre, d: descripcion, p: precio, c: cantidad, cat: categoriaId }
         );
         res.status(201).json({ message: 'Producto creado' });
-    } catch (err) {
-        console.error("Error crear producto:", err);
-        res.status(500).json({ error: err.message });
-    } finally {
-        if (connection) await connection.close();
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
 });
 
-// 2. EDITAR PRODUCTO
 app.put('/api/productos/:id', async (req, res) => {
-    const { id } = req.params;
     const { nombre, descripcion, precio, cantidad, categoriaId, estado } = req.body;
-
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
         await connection.execute(
-            `BEGIN 
-                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_ACTUALIZAR_SP(
-                    :id, :nom, :desc, :prec, :cant, :cat, :estado
-                ); 
-             END;`,
-            {
-                id: id,
-                nom: nombre,
-                desc: descripcion,
-                prec: precio,
-                cant: cantidad,
-                cat: categoriaId,
-                estado: estado || 1 // Default activo si no viene
-            }
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_ACTUALIZAR_SP(:id, :n, :d, :p, :c, :cat, :e); END;`,
+            { id: req.params.id, n: nombre, d: descripcion, p: precio, c: cantidad, cat: categoriaId, e: estado || 1 }
         );
         res.json({ message: 'Producto actualizado' });
-    } catch (err) {
-        console.error("Error actualizar producto:", err);
-        res.status(500).json({ error: err.message });
-    } finally {
-        if (connection) await connection.close();
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
 });
 
-// 3. ELIMINAR PRODUCTO (Borrado Lógico)
 app.delete('/api/productos/:id', async (req, res) => {
-    const { id } = req.params;
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        // El SP por defecto pone estado 2 (inactivo)
-        await connection.execute(
-            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_ELIMINAR_SP(:id); END;`,
-            { id: id }
-        );
+        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_ELIMINAR_SP(:id); END;`, { id: req.params.id });
         res.json({ message: 'Producto eliminado' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err.message });
-    } finally {
-        if (connection) await connection.close();
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
 });
 
+// --- SERVICIOS ---
 app.post('/api/servicios', async (req, res) => {
     const { nombre, descripcion, precio, categoriaId } = req.body;
-    
-    // ID aleatorio
-    const idServicio = Math.floor(Math.random() * 100000);
-
+    const id = Math.floor(Math.random() * 100000);
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
         await connection.execute(
-            `BEGIN 
-                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_INSERTAR_SP(
-                    :id, :nom, :desc, :prec, :cat
-                ); 
-             END;`,
-            {
-                id: idServicio,
-                nom: nombre,
-                desc: descripcion,
-                prec: precio,
-                cat: categoriaId
-            }
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_INSERTAR_SP(:id, :n, :d, :p, :c); END;`,
+            { id: id, n: nombre, d: descripcion, p: precio, c: categoriaId }
         );
         res.status(201).json({ message: 'Servicio creado' });
-    } catch (err) {
-        console.error("Error crear servicio:", err);
-        res.status(500).json({ error: err.message });
-    } finally {
-        if (connection) await connection.close();
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
 });
 
-// 2. EDITAR SERVICIO
 app.put('/api/servicios/:id', async (req, res) => {
-    const { id } = req.params;
     const { nombre, descripcion, precio, categoriaId, estado } = req.body;
-
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
         await connection.execute(
-            `BEGIN 
-                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_ACTUALIZAR_SP(
-                    :id, :nom, :desc, :prec, :cat, :estado
-                ); 
-             END;`,
-            {
-                id: id,
-                nom: nombre,
-                desc: descripcion,
-                prec: precio,
-                cat: categoriaId,
-                estado: estado || 1
-            }
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_ACTUALIZAR_SP(:id, :n, :d, :p, :c, :e); END;`,
+            { id: req.params.id, n: nombre, d: descripcion, p: precio, c: categoriaId, e: estado || 1 }
         );
         res.json({ message: 'Servicio actualizado' });
-    } catch (err) {
-        console.error("Error actualizar servicio:", err);
-        res.status(500).json({ error: err.message });
-    } finally {
-        if (connection) await connection.close();
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
 });
 
-// 3. ELIMINAR SERVICIO (Borrado Lógico)
 app.delete('/api/servicios/:id', async (req, res) => {
-    const { id } = req.params;
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(
-            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_ELIMINAR_SP(:id); END;`,
-            { id: id }
-        );
+        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_ELIMINAR_SP(:id); END;`, { id: req.params.id });
         res.json({ message: 'Servicio eliminado' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err.message });
-    } finally {
-        if (connection) await connection.close();
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
+});
+
+// ==========================================
+// INICIO DEL SERVIDOR
+// ==========================================
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`✅ Servidor Pink Rentals corriendo en http://localhost:${PORT}`);
 });

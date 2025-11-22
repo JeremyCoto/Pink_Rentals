@@ -1,18 +1,19 @@
 document.addEventListener('DOMContentLoaded', async () => {
     await cargarDatosIniciales();
-    document.getElementById('form-producto').addEventListener('submit', manejarGuardado);
+    // Solo agregar listener de form si existe (es decir, si es admin y el modal existe)
+    const form = document.getElementById('form-producto');
+    if(form) form.addEventListener('submit', manejarGuardado);
 });
 
 let productosCache = [];
-let categoriasCache = []; // Para mapear ID -> Nombre
-let editandoId = null;    // null = Crear
+let categoriasCache = []; 
+let editandoId = null;    
 
 async function cargarDatosIniciales() {
     const tbody = document.getElementById('tabla-productos');
     tbody.innerHTML = '<tr><td colspan="6" class="text-center">Cargando inventario...</td></tr>';
 
     try {
-        // Cargar Productos y Categorías en paralelo
         const [productos, categorias] = await Promise.all([
             ApiService.getProductos(),
             ApiService.getCategoriasProducto()
@@ -21,11 +22,9 @@ async function cargarDatosIniciales() {
         productosCache = productos;
         categoriasCache = categorias;
 
-        // Llenar el select de categorías del Modal
         renderSelectCategorias(categorias);
         
-        // Filtrar solo productos activos (si tu backend devuelve inactivos también)
-        // Si ya modificaste el SP para filtrar en Oracle, esto no es necesario, pero es buena práctica.
+        // Filtrar activos
         const activos = productos.filter(p => p.estados_id_estado_pk === 1);
         renderProductos(activos);
 
@@ -35,7 +34,6 @@ async function cargarDatosIniciales() {
     }
 }
 
-// --- RENDERIZADO DE TABLA ---
 function renderProductos(productos) {
     const tbody = document.getElementById('tabla-productos');
     tbody.innerHTML = '';
@@ -45,33 +43,51 @@ function renderProductos(productos) {
         return;
     }
 
+    // DETECCIÓN DE ROL PARA UI
+    const userStr = localStorage.getItem('pinkUser');
+    let isAdmin = false;
+    if(userStr) {
+        const user = JSON.parse(userStr);
+        if(user.rol == 10 || user.rol == 20) isAdmin = true;
+    }
+
     productos.forEach(p => {
-        // Buscar nombre de la categoría
         const cat = categoriasCache.find(c => c.categoria_producto_id_categoria_pk === p.categoria_producto_id_categoria_pk);
         const nombreCategoria = cat ? cat.nombre : 'General';
 
         const fila = tbody.insertRow();
+        
+        // Construcción condicional de la celda de acciones
+        let accionesHTML = '';
+        if(isAdmin) {
+            accionesHTML = `
+                <td style="text-align: center;">
+                    <button class="btn-icon editar" onclick="abrirModalEditar(${p.producto_id_producto_pk})" title="Editar">✏️</button>
+                    <button class="btn-icon eliminar" onclick="confirmarEliminar(${p.producto_id_producto_pk})" title="Eliminar">🗑️</button>
+                </td>`;
+        } else {
+            // Si es invitado, dejamos la celda vacía o la ocultamos con CSS
+            accionesHTML = `<td style="display:none;"></td>`; 
+        }
+
         fila.innerHTML = `
             <td>${p.producto_id_producto_pk}</td>
             <td>${p.nombre}</td>
             <td>${nombreCategoria}</td>
             <td>₡ ${Number(p.precio_unitario).toLocaleString('es-CR')}</td>
             <td>${p.cantidad}</td>
-            <td style="text-align: center;">
-                <button class="btn-icon editar" onclick="abrirModalEditar(${p.producto_id_producto_pk})" title="Editar">✏️</button>
-                <button class="btn-icon eliminar" onclick="confirmarEliminar(${p.producto_id_producto_pk})" title="Eliminar">🗑️</button>
-            </td>
+            ${accionesHTML}
         `;
     });
 }
 
-// --- POPULAR SELECTOR CATEGORÍAS ---
 function renderSelectCategorias(categorias) {
     const select = document.getElementById('select-categoria');
-    select.innerHTML = '<option value="">Seleccione...</option>';
+    if(!select) return; // Si no existe el modal (invitado), salir
     
+    select.innerHTML = '<option value="">Seleccione...</option>';
     categorias.forEach(c => {
-        if (c.estados_id_estado_fk === 1) { // Solo categorías activas
+        if (c.estados_id_estado_fk === 1) {
             const option = document.createElement('option');
             option.value = c.categoria_producto_id_categoria_pk;
             option.textContent = c.nombre;
@@ -80,12 +96,12 @@ function renderSelectCategorias(categorias) {
     });
 }
 
-// --- LÓGICA DEL MODAL ---
+// --- LÓGICA DEL MODAL (Solo funciona si eres Admin) ---
 window.abrirModalCrear = function() {
     editandoId = null;
     document.getElementById('modal-titulo').textContent = "Nuevo Producto";
     document.getElementById('form-producto').reset();
-    document.getElementById('group-estado').style.display = 'none'; // Ocultar estado al crear
+    document.getElementById('group-estado').style.display = 'none'; 
     document.getElementById('modal-producto').style.display = 'flex';
 };
 
@@ -95,28 +111,23 @@ window.abrirModalEditar = function(id) {
 
     editandoId = id;
     document.getElementById('modal-titulo').textContent = `Editar Producto #${id}`;
-    
-    // Llenar campos
     document.getElementById('nombre').value = prod.nombre;
     document.getElementById('descripcion').value = prod.descripcion || '';
     document.getElementById('select-categoria').value = prod.categoria_producto_id_categoria_pk;
     document.getElementById('precio').value = prod.precio_unitario;
     document.getElementById('cantidad').value = prod.cantidad;
-    
-    // Mostrar estado
     document.getElementById('group-estado').style.display = 'flex';
     document.getElementById('select-estado').value = prod.estados_id_estado_pk;
-
     document.getElementById('modal-producto').style.display = 'flex';
 };
 
 window.cerrarModal = function() {
-    document.getElementById('modal-producto').style.display = 'none';
+    const modal = document.getElementById('modal-producto');
+    if(modal) modal.style.display = 'none';
 };
 
 async function manejarGuardado(e) {
     e.preventDefault();
-
     const datos = {
         nombre: document.getElementById('nombre').value,
         descripcion: document.getElementById('descripcion').value,
@@ -135,7 +146,7 @@ async function manejarGuardado(e) {
             alert('Producto creado con éxito');
         }
         cerrarModal();
-        cargarDatosIniciales(); // Recargar tabla
+        cargarDatosIniciales();
     } catch (error) {
         alert('Error: ' + error.message);
     }
@@ -147,7 +158,7 @@ window.confirmarEliminar = async function(id) {
             await ApiService.eliminarProducto(id);
             cargarDatosIniciales();
         } catch (error) {
-            alert('Error al eliminar: ' + error.message);
+            alert('Error: ' + error.message);
         }
     }
 };
