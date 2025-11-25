@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ubicaciones | Pink Rentals</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        const u = localStorage.getItem('pinkUser');
+        if (!u || JSON.parse(u).rol == 30) window.location.href = 'index.html';
+    </script>
+
+    <style>
+        /* Layout de 3 Columnas para la Jerarquía */
+        .geo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            height: 65vh; /* Altura fija para scroll interno */
+        }
+        
+        .geo-column {
+            background: #1e1e1e;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .geo-header {
+            padding: 15px;
+            background: rgba(255,20,147,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .geo-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .geo-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 6px;
+        }
+
+        .geo-item:hover { background: #2a2a2a; }
+        .geo-item.active { background: var(--pink-primary); color: white; }
+        
+        /* Responsive: En móviles se ponen una debajo de otra */
+        @media (max-width: 900px) {
+            .geo-grid { grid-template-columns: 1fr; height: auto; }
+            .geo-column { height: 300px; }
+        }
+    </style>
+</head>
+<body class="theme-dark">
+    
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo">
+                <h1><span class="pink-text">Pink</span> Rentals</h1>
+                <p class="tagline">PHOTOBOOTH & EVENTS</p>
+            </div>
+            <nav class="nav"><ul></ul></nav>
+            <div class="header-user-area">
+                <span id="userDisplay" style="font-size:0.85rem; color:#aaa;"></span>
+                <div id="authButtonContainer"></div>
+                <button id="theme-toggle" class="theme-toggle" onclick="document.body.classList.toggle('theme-light')">🌓</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero" style="padding: 120px 0 40px;">
+        <div class="container">
+            <div class="hero-content text-center">
+                <h2>Base de Datos <span class="hero-highlight">Geográfica</span></h2>
+                <p>Administra Provincias, Cantones y Distritos para la logística.</p>
+            </div>
+        </div>
+    </section>
+
+    <section style="padding: 40px 0;">
+        <div class="container">
+            
+            <div class="geo-grid">
+                
+                <div class="geo-column">
+                    <div class="geo-header">
+                        <strong>1. Provincias</strong>
+                        <button class="btn-mini" onclick="abrirModal('provincia')">+</button>
+                    </div>
+                    <div id="lista-provincias" class="geo-list">
+                        <p class="text-center" style="padding:20px; color:#666;">Cargando...</p>
+                    </div>
+                </div>
+
+                <div class="geo-column">
+                    <div class="geo-header">
+                        <strong>2. Cantones</strong>
+                        <button class="btn-mini" onclick="abrirModal('canton')" id="btn-add-canton" disabled>+</button>
+                    </div>
+                    <div id="lista-cantones" class="geo-list">
+                        <p class="text-center" style="padding:20px; color:#666;">Selecciona una provincia</p>
+                    </div>
+                </div>
+
+                <div class="geo-column">
+                    <div class="geo-header">
+                        <strong>3. Distritos</strong>
+                        <button class="btn-mini" onclick="abrirModal('distrito')" id="btn-add-distrito" disabled>+</button>
+                    </div>
+                    <div id="lista-distritos" class="geo-list">
+                        <p class="text-center" style="padding:20px; color:#666;">Selecciona un cantón</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom"><p>&copy; 2025 Pink Rentals.</p></div>
+        </div>
+    </footer>
+
+    <div id="modal-geo" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-titulo">Nueva Ubicación</h3>
+                <button class="close-modal" onclick="cerrarModal()">&times;</button>
+            </div>
+            <form id="form-geo">
+                <input type="hidden" id="tipo-entidad">
+                <input type="hidden" id="id-padre"> 
+                
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" id="nombre-geo" required class="input-dark" placeholder="Nombre oficial">
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="cerrarModal()" style="background:#333; color:#fff;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .btn-mini { background: #333; border: none; color: white; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
+        .btn-mini:hover { background: var(--pink-primary); }
+        .btn-mini:disabled { opacity: 0.3; cursor: not-allowed; }
+        /* Reutilizar estilos modales */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: #181818; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; border: 1px solid #333; }
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #333; }
+        .close-modal { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+        .input-dark { width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 6px; }
+        .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
+    </style>
+
+    <script src="js/utils.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/ubicaciones.js"></script>
+</body>
+</html>

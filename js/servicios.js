@@ -10,25 +10,19 @@ let editandoId = null;
 
 async function cargarDatosIniciales() {
     const contenedor = document.getElementById('grid-servicios');
-    contenedor.innerHTML = '<p class="text-center">Cargando catálogo...</p>';
+    if(!contenedor) return;
+    contenedor.innerHTML = '<p class="text-center">Cargando...</p>';
 
     try {
         const [servicios, categorias] = await Promise.all([
             ApiService.getServicios(),
             ApiService.getCategoriasServicio()
         ]);
-
         serviciosCache = servicios;
         categoriasCache = categorias;
-
         renderSelectCategorias(categorias);
-        const activos = servicios.filter(s => s.estados_id_estado_pk === 1);
-        renderServicios(activos);
-
-    } catch (error) {
-        console.error(error);
-        contenedor.innerHTML = '<p class="text-center error">Error de conexión</p>';
-    }
+        renderServicios(servicios.filter(s => s.estados_id_estado_pk === 1));
+    } catch (e) { console.error(e); }
 }
 
 function renderServicios(servicios) {
@@ -36,46 +30,54 @@ function renderServicios(servicios) {
     contenedor.innerHTML = '';
 
     if (servicios.length === 0) {
-        contenedor.innerHTML = '<p class="text-center">No hay servicios registrados.</p>';
+        contenedor.innerHTML = '<p class="text-center">No hay servicios.</p>';
         return;
     }
 
-    // DETECCIÓN DE ROL
     const userStr = localStorage.getItem('pinkUser');
-    let isAdmin = false;
-    if(userStr) {
-        const user = JSON.parse(userStr);
-        if(user.rol == 10 || user.rol == 20) isAdmin = true;
-    }
-
+    const user = userStr ? JSON.parse(userStr) : null;
+    const rol = user ? user.rol : 0;
+    
     servicios.forEach(s => {
         const cat = categoriasCache.find(c => c.categoria_servicio_id_categoria_pk === s.categoria_servicio_id_categoria_pk);
-        const nombreCategoria = cat ? cat.nombre : 'General';
-        
-        // Lógica simple para icono (puedes usar la de config.js si quieres)
-        const icono = '✨'; 
-
         const card = document.createElement('div');
         card.className = 'servicio-card';
         
-        let accionesHTML = '';
-        if(isAdmin) {
-            accionesHTML = `
+        let adminBtns = '';
+        let clientBtn = '';
+
+        // Botones ADMIN (Arriba a la derecha)
+        if(rol == 10 || rol == 20) {
+            adminBtns = `
             <div class="servicio-actions">
-                <button class="btn-mini" onclick="abrirModalEditar(${s.servicios_id_servicio_pk})" title="Editar">✏️</button>
-                <button class="btn-mini delete" onclick="confirmarEliminar(${s.servicios_id_servicio_pk})" title="Eliminar">🗑️</button>
+                <button class="btn-mini" onclick="abrirModalEditar(${s.servicios_id_servicio_pk})">✏️</button>
+                <button class="btn-mini delete" onclick="confirmarEliminar(${s.servicios_id_servicio_pk})">🗑️</button>
+            </div>`;
+        } 
+        // Botón CLIENTE (Siempre abajo)
+        else if (rol == 30) {
+            const itemData = JSON.stringify({
+                id: s.servicios_id_servicio_pk, nombre: s.nombre, precio: Number(s.precio), tipo: 'servicio'
+            }).replace(/"/g, '&quot;');
+            
+            // Usamos un div contenedor con estilo inline (o clase css) para empujar al fondo
+            // Style: margin-top: auto asegura que se pegue al fondo en un flex column
+            clientBtn = `
+            <div style="margin-top: auto; width: 100%; padding-top: 15px;">
+                <button class="btn-reserva" onclick="CartSystem.add(${itemData})">📅 Agregar a Reserva</button>
             </div>`;
         }
 
         card.innerHTML = `
-            ${accionesHTML}
-            <div class="servicio-icon">${icono}</div>
+            ${adminBtns}
+            <div class="servicio-icon">✨</div>
             <h3>${s.nombre}</h3>
             <p>${s.descripcion || 'Sin descripción'}</p>
-            <p style="margin-top:10px; font-weight:600; font-size:1.1em;">₡ ${Number(s.precio).toLocaleString('es-CR')}</p>
-            <div class="servicio-footer">
-                <span class="info-badge">${nombreCategoria}</span>
+            <div style="margin: 10px 0; font-weight:700; color:var(--pink-primary);">
+                ₡ ${Number(s.precio).toLocaleString('es-CR')}
             </div>
+            <span class="info-badge" style="align-self: flex-start; margin-bottom:15px;">${cat ? cat.nombre : 'General'}</span>
+            ${clientBtn}
         `;
         contenedor.appendChild(card);
     });
@@ -84,19 +86,17 @@ function renderServicios(servicios) {
 function renderSelectCategorias(categorias) {
     const select = document.getElementById('select-categoria');
     if(!select) return;
-
     select.innerHTML = '<option value="">Seleccione...</option>';
     categorias.forEach(c => {
-        if (c.estados_id_estado_fk === 1) {
-            const option = document.createElement('option');
-            option.value = c.categoria_servicio_id_categoria_pk;
-            option.textContent = c.nombre;
-            select.appendChild(option);
+        if(c.estados_id_estado_fk === 1) {
+            const op = document.createElement('option');
+            op.value = c.categoria_servicio_id_categoria_pk; op.textContent = c.nombre;
+            select.appendChild(op);
         }
     });
 }
 
-// --- MODAL (Admin) ---
+// Funciones Modal Admin
 window.abrirModalCrear = function() {
     editandoId = null;
     document.getElementById('modal-titulo').textContent = "Nuevo Servicio";
@@ -104,29 +104,25 @@ window.abrirModalCrear = function() {
     document.getElementById('group-estado').style.display = 'none';
     document.getElementById('modal-servicio').style.display = 'flex';
 };
-
 window.abrirModalEditar = function(id) {
-    const serv = serviciosCache.find(s => s.servicios_id_servicio_pk == id);
-    if (!serv) return;
+    const s = serviciosCache.find(x => x.servicios_id_servicio_pk == id);
+    if(!s) return;
     editandoId = id;
-    document.getElementById('modal-titulo').textContent = `Editar Servicio #${id}`;
-    document.getElementById('nombre').value = serv.nombre;
-    document.getElementById('descripcion').value = serv.descripcion || '';
-    document.getElementById('select-categoria').value = serv.categoria_servicio_id_categoria_pk;
-    document.getElementById('precio').value = serv.precio;
+    document.getElementById('modal-titulo').textContent = "Editar Servicio";
+    document.getElementById('nombre').value = s.nombre;
+    document.getElementById('descripcion').value = s.descripcion;
+    document.getElementById('select-categoria').value = s.categoria_servicio_id_categoria_pk;
+    document.getElementById('precio').value = s.precio;
     document.getElementById('group-estado').style.display = 'flex';
-    document.getElementById('select-estado').value = serv.estados_id_estado_pk;
+    document.getElementById('select-estado').value = s.estados_id_estado_pk;
     document.getElementById('modal-servicio').style.display = 'flex';
 };
+window.cerrarModal = function() { document.getElementById('modal-servicio').style.display = 'none'; };
 
-window.cerrarModal = function() {
-    const modal = document.getElementById('modal-servicio');
-    if(modal) modal.style.display = 'none';
-};
-
+// Guardar y Eliminar
 async function manejarGuardado(e) {
     e.preventDefault();
-    const datos = {
+    const d = {
         nombre: document.getElementById('nombre').value,
         descripcion: document.getElementById('descripcion').value,
         categoriaId: document.getElementById('select-categoria').value,
@@ -134,27 +130,14 @@ async function manejarGuardado(e) {
         estado: document.getElementById('select-estado').value
     };
     try {
-        if (editandoId) {
-            await ApiService.actualizarServicio(editandoId, datos);
-            alert('Servicio actualizado');
-        } else {
-            await ApiService.crearServicio(datos);
-            alert('Servicio creado exitosamente');
-        }
-        cerrarModal();
-        cargarDatosIniciales();
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
+        if(editandoId) await ApiService.actualizarServicio(editandoId, d);
+        else await ApiService.crearServicio(d);
+        cerrarModal(); cargarDatosIniciales();
+    } catch(err) { alert(err.message); }
 }
-
 window.confirmarEliminar = async function(id) {
-    if (confirm(`¿Seguro de eliminar el servicio #${id}?`)) {
-        try {
-            await ApiService.eliminarServicio(id);
-            cargarDatosIniciales();
-        } catch (error) {
-            alert('Error al eliminar: ' + error.message);
-        }
+    if(confirm("¿Eliminar servicio?")) {
+        try { await ApiService.eliminarServicio(id); cargarDatosIniciales(); }
+        catch(err) { alert(err.message); }
     }
 };

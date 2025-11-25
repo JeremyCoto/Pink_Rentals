@@ -7,161 +7,218 @@
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- CSS PARA MODO INVITADO -->
     <style>
-        /* Ocultar botones de admin si es invitado */
-        .guest-view .btn-primary { display: none !important; } /* Botón Crear */
-        .guest-view .servicio-actions { display: none !important; } /* Botones Editar/Borrar en cards */
+        /* --- ESTILOS DEL GRID DE SERVICIOS --- */
+        .servicios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .servicio-card {
+            background: #1e1e1e;
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+        .servicio-card:hover { transform: translateY(-5px); border-color: var(--pink-primary); }
+        .servicio-icon { font-size: 32px; margin-bottom: 15px; }
+        
+        .servicio-actions-bottom { margin-top: auto; padding-top: 15px; }
+        .btn-reserva {
+            width: 100%; padding: 10px; border: 1px solid var(--pink-primary);
+            color: var(--pink-primary); background: none; border-radius: 8px; cursor: pointer;
+            font-weight: 600; transition: 0.2s;
+        }
+        .btn-reserva:hover { background: var(--pink-primary); color: #fff; }
+
+        .guest-view .servicio-actions { display: none !important; }
+        .guest-view .admin-btn { display: none !important; }
+
+        /* --- CORRECCIÓN: ESTILOS DEL MODAL (CENTRADO) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85); /* Fondo oscuro traslúcido */
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: flex;           /* Flex para centrar */
+            justify-content: center; /* Horizontal */
+            align-items: center;     /* Vertical */
+        }
+
+        .modal-content {
+            background: #181818;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;        /* Ancho máximo adecuado */
+            border: 1px solid #333;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+            position: relative;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+        }
+        
+        .modal-header h3 { color: var(--pink-primary); margin: 0; font-size: 1.5rem; }
+        .close-modal { background: none; border: none; color: #aaa; font-size: 28px; cursor: pointer; }
+        .close-modal:hover { color: #fff; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { color: #ccc; font-size: 0.9rem; font-weight: 500; }
+
+        .input-dark {
+            width: 100%;
+            background: #222;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+        .input-dark:focus { border-color: var(--pink-primary); outline: none; }
+
+        .modal-footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body class="theme-dark">
-<header class="header">
-    <div class="container header-inner">
-        <div class="logo">
-            <h1><span class="pink-text">Pink</span> Rentals</h1>
-            <p class="tagline">PHOTOBOOTH</p>
-        </div>
-        <nav class="nav">
-            <ul></ul>
-        </nav>
-        <div style="display:flex; gap:10px; align-items:center;">
-            <span id="userDisplay" style="font-size:0.8rem; color:#aaa;"></span>
-            <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
-        </div>
-    </div>
-</header>
-
-<section class="hero" style="padding:50px 0 30px;">
-    <div class="container">
-        <div class="hero-content">
-            <h2>Catálogo de <span class="hero-highlight">Servicios</span></h2>
-            <p>Experiencias fotográficas y audiovisuales para tus eventos.</p>
-        </div>
-    </div>
-</section>
-
-<section class="servicios-section">
-    <div class="container">
-        <div class="section-title">
-            <h2>Servicios <span class="pink-text">Disponibles</span></h2>
-            <p>Explora nuestras opciones.</p>
-        </div>
-
-        <div class="filters-bar" style="display:flex; justify-content:flex-end; margin-bottom:20px;">
-            <button class="btn btn-primary" onclick="abrirModalCrear()">
-                + Nuevo Servicio
-            </button>
-        </div>
-
-        <div id="grid-servicios" class="servicios-grid">
-            <p class="text-center" style="width:100%;">Cargando servicios...</p>
-        </div>
-    </div>
-</section>
-
-<footer class="footer">
-    <div class="container">
-        <div class="footer-bottom">
-            <p>&copy; 2025 Pink Rentals | Servicios.</p>
-        </div>
-    </div>
-</footer>
-
-<!-- Modal (Admin Only - Oculto por CSS si es guest) -->
-<div id="modal-servicio" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="modal-titulo">Nuevo Servicio</h3>
-            <button class="close-modal" onclick="cerrarModal()">&times;</button>
-        </div>
-        <form id="form-servicio">
-            <input type="hidden" id="servicio-id">
-            <div class="form-grid">
-                <div class="form-group" style="grid-column: span 2;">
-                    <label>Nombre del Servicio</label>
-                    <input type="text" id="nombre" required placeholder="Ej: Pista LED 3x3">
-                </div>
-                <div class="form-group" style="grid-column: span 2;">
-                    <label>Descripción</label>
-                    <input type="text" id="descripcion" placeholder="Detalles del servicio...">
-                </div>
-                <div class="form-group">
-                    <label>Categoría</label>
-                    <select id="select-categoria" required style="padding:10px; background:#222; border:1px solid #444; color:white; border-radius:8px;">
-                        <option value="">Seleccione...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Precio Base</label>
-                    <input type="number" id="precio" required min="0" step="0.01">
-                </div>
-                <div class="form-group" id="group-estado" style="display:none;">
-                    <label>Estado</label>
-                    <select id="select-estado" style="padding:10px; background:#222; border:1px solid #444; color:white; border-radius:8px;">
-                        <option value="1">Activo</option>
-                        <option value="2">Inactivo</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn" onclick="cerrarModal()" style="background:#444; color:white; margin-right: 10px;">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Guardar Servicio</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<style>
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 9999; display: flex; justify-content: center; align-items: center; }
-    .modal-content { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid #333; box-shadow: 0 20px 60px rgba(0,0,0,0.8); color: white; }
-    .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
-    .modal-header h3 { color: #FF1493; margin: 0; }
-    .close-modal { background: none; border: none; color: #aaa; font-size: 24px; cursor: pointer; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .form-group { display: flex; flex-direction: column; }
-    .form-group label { font-size: 12px; color: #ccc; margin-bottom: 5px; }
-    .form-group input { background: #2d2d2d; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; }
-    .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
     
-    /* Estilos Tarjetas Servicios */
-    .servicio-card { position: relative; }
-    .servicio-actions {
-        position: absolute; top: 15px; right: 15px;
-        display: flex; gap: 5px;
-        z-index: 10; /* Asegurar que esté arriba */
-    }
-    .btn-mini {
-        background: rgba(255,255,255,0.1); border: none; color: white;
-        width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-        transition: background 0.2s;
-    }
-    .btn-mini:hover { background: rgba(255,20,147,0.5); }
-    .btn-mini.delete:hover { background: #F44336; }
-</style>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo">
+                <h1><span class="pink-text">Pink</span> Rentals</h1>
+                <p class="tagline">PHOTOBOOTH & EVENTS</p>
+            </div>
+            <nav class="nav"><ul></ul></nav>
+            <div class="header-user-area">
+                <span id="userDisplay" style="font-size:0.85rem; color:#aaa;"></span>
+                <div id="authButtonContainer"></div>
+                <button id="theme-toggle" class="theme-toggle" onclick="document.body.classList.toggle('theme-light')">🌓</button>
+            </div>
+        </div>
+    </header>
 
-<script src="js/utils.js"></script>
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
-<script src="js/main.js"></script>
-<script src="js/servicios.js"></script>
+    <section class="hero" style="padding: 120px 0 40px;">
+        <div class="container">
+            <div class="hero-content text-center">
+                <h2>Catálogo de <span class="hero-highlight">Servicios</span></h2>
+                <p>Experiencias visuales para hacer brillar tu evento.</p>
+            </div>
+        </div>
+    </section>
 
-<!-- LÓGICA DE ADAPTACIÓN -->
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const userStr = localStorage.getItem('pinkUser');
-        let isAdmin = false;
-        
-        if (userStr) {
-            const user = JSON.parse(userStr);
-            if (user.rol == 10 || user.rol == 20) isAdmin = true;
-        }
+    <section style="padding: 40px 0; min-height: 60vh;">
+        <div class="container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+                <h3 style="color:#eee;">Disponibles</h3>
+                <button class="btn btn-primary admin-btn" onclick="abrirModalCrear()">+ Nuevo Servicio</button>
+            </div>
 
-        // Si NO es admin, activamos el modo invitado (Oculta botones)
-        if (!isAdmin) {
-            document.body.classList.add('guest-view');
-        }
-    });
-</script>
+            <div id="grid-servicios" class="servicios-grid">
+                <p class="text-center" style="width:100%;">Cargando catálogo...</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom"><p>&copy; 2025 Pink Rentals.</p></div>
+        </div>
+    </footer>
+
+    <div id="modal-servicio" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-titulo">Servicio</h3>
+                <button class="close-modal" onclick="cerrarModal()">&times;</button>
+            </div>
+            <form id="form-servicio">
+                <input type="hidden" id="servicio-id">
+                <div class="form-grid">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Nombre</label>
+                        <input type="text" id="nombre" required class="input-dark">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Descripción</label>
+                        <input type="text" id="descripcion" class="input-dark">
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="select-categoria" required class="input-dark"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio</label>
+                        <input type="number" id="precio" required min="0" class="input-dark">
+                    </div>
+                    <div class="form-group" id="group-estado" style="display:none;">
+                        <label>Estado</label>
+                        <select id="select-estado" class="input-dark">
+                            <option value="1">Activo</option>
+                            <option value="2">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="cerrarModal()" style="background:#333; color:#fff; border:none; padding:10px 20px; border-radius:6px; cursor:pointer;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/servicios.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userStr = localStorage.getItem('pinkUser');
+            const user = userStr ? JSON.parse(userStr) : null;
+            
+            if (!user) {
+                document.body.classList.add('guest-view');
+            } else if (user.rol == 30) {
+                // Ocultar botón de crear servicio si es cliente
+                const btn = document.querySelector('.admin-btn');
+                if(btn) btn.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>

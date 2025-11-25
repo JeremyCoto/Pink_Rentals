@@ -3,131 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pink Rentals | Photobooth & Eventos</title>
+    <title>Pink Rentals | Inicio</title>
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- CSS Adicional para los botones de Nav -->
-    <style>
-        .btn-nav-login { background: #ff4081; color: white; padding: 8px 15px; border-radius: 20px; text-decoration: none; font-weight: 500; font-size: 0.9rem; }
-        .btn-nav-login:hover { background: #e91e63; transform: scale(1.05); }
-        .btn-nav-logout { background: transparent; border: 1px solid #666; color: #ccc; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
-        .btn-nav-logout:hover { border-color: #ff4081; color: #ff4081; }
-        .user-welcome { font-size: 0.9rem; color: #aaa; margin-right: 15px; }
-    </style>
 </head>
 <body class="theme-dark">
     
-    <!-- HEADER UNIVERSAL -->
     <header class="header">
         <div class="container header-inner">
             <div class="logo">
                 <h1><span class="pink-text">Pink</span> Rentals</h1>
-                <p class="tagline">PHOTOBOOTH</p>
+                <p class="tagline">PHOTOBOOTH & EVENTS</p>
             </div>
             
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <!-- Menú Dinámico (Se llena con JS) -->
-                <nav class="nav">
-                    <ul>
-                        <!-- JS INYECTARÁ LI AQUÍ -->
-                    </ul>
-                </nav>
+            <nav class="nav">
+                <ul></ul>
+            </nav>
 
-                <!-- Área de Usuario -->
-                <div style="display: flex; align-items: center;">
-                    <span id="userDisplay" class="user-welcome"></span>
-                    <div id="authButtonContainer">
-                        <!-- JS INYECTARÁ BOTÓN LOGIN O LOGOUT -->
-                    </div>
-                </div>
-
-                <button id="theme-toggle" class="theme-toggle" onclick="PinkUtils.toggleTheme()">🌓</button>
+            <div class="header-user-area">
+                <span id="userDisplay" style="font-size:0.85rem; color:#aaa;"></span>
+                <div id="authButtonContainer"></div>
+                <button id="theme-toggle" class="theme-toggle" onclick="document.body.classList.toggle('theme-light')">🌓</button>
             </div>
         </div>
     </header>
 
-    <!-- HERO SECTION (Siempre visible, cambia textos con JS) -->
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h2 id="hero-title">Experiencias <span class="hero-highlight">Únicas</span></h2>
-                <p id="hero-desc">Alquiler de equipos de fotografía y video para eventos sociales y corporativos.</p>
-                <div class="hero-badge">
-                    <span class="badge-icon">✨</span>
-                    <span id="db-status">Calidad Premium</span>
+                <h2 id="hero-title">Momentos <span class="hero-highlight">Inolvidables</span></h2>
+                <p>Expertos en experiencias visuales para eventos corporativos y bodas. Alquiler de Photobooth, plataformas 360° y mobiliario exclusivo.</p>
+                <div style="margin-top: 30px;">
+                    <a href="servicios.html" class="btn btn-primary">Ver Servicios</a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- SECCIÓN SOLO ADMIN: DASHBOARD (Oculta por defecto) -->
-    <div id="admin-dashboard-section" style="display: none;">
-        <section class="stats-section" id="inicio">
-            <div class="container">
-                <div class="section-title">
-                    <h2>Panel <span class="pink-text">Administrativo</span></h2>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon pink-bg"><span>👥</span></div>
-                        <div class="stat-content">
-                            <h3 id="total-clientes" class="stat-number">0</h3>
-                            <p class="stat-label">Clientes</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon pink-bg"><span>📅</span></div>
-                        <div class="stat-content">
-                            <h3 id="total-reservaciones" class="stat-number">0</h3>
-                            <p class="stat-label">Reservas</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon pink-bg"><span>📦</span></div>
-                        <div class="stat-content">
-                            <h3 id="total-productos" class="stat-number">0</h3>
-                            <p class="stat-label">Productos</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon pink-bg"><span>💰</span></div>
-                        <div class="stat-content">
-                            <h3 id="total-servicios" class="stat-number">0</h3>
-                            <p class="stat-label">Servicios</p>
-                        </div>
-                    </div>
-                </div>
+    <section class="info-section">
+        <div class="container">
+            <div class="text-center" style="margin-bottom: 50px;">
+                <h2>¿Qué <span class="pink-text">Ofrecemos?</span></h2>
+                <p style="color:#aaa;">Soluciones integrales para elevar el nivel de tu evento.</p>
+            </div>
 
-                <!-- Actividad Reciente Admin -->
-                <div class="activity-section" style="margin-top: 30px;">
-                    <h3>Actividad Reciente</h3>
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr><th>ID</th><th>Evento</th><th>Cliente</th><th>Fecha</th><th>Estado</th></tr>
-                            </thead>
-                            <tbody id="tabla-actividad-reciente"></tbody>
-                        </table>
-                    </div>
+            <div class="info-grid">
+                <a href="servicios.html" class="info-card">
+                    <span class="info-icon">📸</span>
+                    <h3>Servicios Premium</h3>
+                    <p>Cabinas de fotos, Espejos Mágicos y Video 360 con la mejor tecnología.</p>
+                    <span class="link-cta">Explorar Catálogo →</span>
+                </a>
+
+                <a href="productos.html" class="info-card">
+                    <span class="info-icon">📦</span>
+                    <h3>Inventario & Extras</h3>
+                    <p>Complementos, props personalizados y equipos audiovisuales adicionales.</p>
+                    <span class="link-cta">Ver Productos →</span>
+                </a>
+
+                <a href="cliente_dashboard.html" class="info-card">
+                    <span class="info-icon">📅</span>
+                    <h3>Gestión en Línea</h3>
+                    <p>Cotiza, reserva y administra los detalles de tu evento desde tu perfil.</p>
+                    <span class="link-cta">Ir a Reservas →</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div id="admin-dashboard-section" style="display: none; padding: 50px 0; background: #000;">
+        <div class="container">
+            <h3 style="margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 10px;">Resumen Operativo</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div class="info-card" style="cursor: default;">
+                    <h2 class="pink-text" id="total-clientes">0</h2>
+                    <p>Clientes Registrados</p>
+                </div>
+                <div class="info-card" style="cursor: default;">
+                    <h2 class="pink-text" id="total-reservaciones">0</h2>
+                    <p>Reservas Totales</p>
+                </div>
+                <div class="info-card" style="cursor: default;">
+                    <h2 class="pink-text" id="total-productos">0</h2>
+                    <p>Productos en Stock</p>
                 </div>
             </div>
-        </section>
+        </div>
     </div>
 
-    <!-- FOOTER UNIVERSAL -->
     <footer class="footer">
         <div class="container">
             <div class="footer-bottom">
-                <p>&copy; 2025 Pink Rentals | Sistema Integral.</p>
+                <p>&copy; 2025 Pink Rentals. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="js/utils.js"></script>
-    <script src="js/config.js"></script>
     <script src="js/api.js"></script>
     <script src="js/main.js"></script>
 </body>

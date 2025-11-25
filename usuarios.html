@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clientes | Pink Rentals</title>
+    <title>Usuarios | Pink Rentals</title>
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
         const u = localStorage.getItem('pinkUser');
         if (!u) window.location.href = 'login.html';
-        else if (JSON.parse(u).rol == 30) window.location.href = 'cliente_dashboard.html';
+        else {
+            const user = JSON.parse(u);
+            if (user.rol == 30) window.location.href = 'cliente_dashboard.html';
+        }
     </script>
 </head>
 <body class="theme-dark">
@@ -21,7 +24,8 @@
                 <h1><span class="pink-text">Pink</span> Rentals</h1>
                 <p class="tagline">PHOTOBOOTH & EVENTS</p>
             </div>
-            <nav class="nav"><ul></ul></nav> <div class="header-user-area">
+            <nav class="nav"><ul></ul></nav>
+            <div class="header-user-area">
                 <span id="userDisplay" style="font-size:0.85rem; color:#aaa;"></span>
                 <div id="authButtonContainer"></div>
                 <button id="theme-toggle" class="theme-toggle" onclick="document.body.classList.toggle('theme-light')">🌓</button>
@@ -32,27 +36,20 @@
     <section class="hero" style="padding: 120px 0 40px;">
         <div class="container">
             <div class="hero-content text-center">
-                <h2>Gestión de <span class="hero-highlight">Clientes</span></h2>
-                <p>Base de datos de usuarios y control de acceso.</p>
+                <h2>Gestión de <span class="hero-highlight">Usuarios</span></h2>
+                <p>Administradores, Empleados y Clientes del sistema.</p>
             </div>
         </div>
     </section>
 
-    <section style="padding: 40px 0; min-height: 50vh;">
+    <section style="padding: 40px 0; min-height: 60vh;">
         <div class="container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
-                <div style="flex: 1; max-width: 400px; position: relative;">
-                    <input type="text" id="buscar-cliente" placeholder="🔍 Buscar por cédula o nombre..." 
-                           style="width: 100%; padding: 12px 20px; border-radius: 30px; border: 1px solid #444; background: #1e1e1e; color: white;">
+            
+            <div class="filters-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; background: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #333;">
+                <div style="display:flex; gap:15px; align-items:center; flex:1;">
+                    <input type="text" id="buscar-usuario" placeholder="🔍 Buscar por cédula o nombre..." class="input-dark" style="margin:0; max-width: 300px;">
                 </div>
-                
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="text-align: right;">
-                        <span style="font-size: 0.8rem; color: #aaa; display: block;">Total Registros</span>
-                        <strong id="clientes-total" style="font-size: 1.2rem; color: var(--pink-primary);">0</strong>
-                    </div>
-                    <button class="btn btn-primary" onclick="abrirModalCrear()">+ Nuevo Cliente</button>
-                </div>
+                <button class="btn btn-primary" onclick="abrirModalCrear()">+ Nuevo Usuario</button>
             </div>
 
             <div class="table-container">
@@ -61,13 +58,13 @@
                         <tr>
                             <th>Cédula</th>
                             <th>Nombre Completo</th>
-                            <th>Teléfono</th>
-                            <th>Fecha Registro</th> 
-                            <th style="text-align: center;">Acciones</th> 
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th style="text-align:center;">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="tabla-clientes">
-                        <tr><td colspan="5" class="text-center" style="padding:40px;">Cargando sistema...</td></tr>
+                    <tbody id="tabla-usuarios">
+                        <tr><td colspan="5" class="text-center" style="padding:40px;">Cargando usuarios...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -80,21 +77,25 @@
         </div>
     </footer>
 
-    <div id="modal-cliente" class="modal-overlay" style="display: none;">
+    <div id="modal-usuario" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modal-titulo">Gestión Cliente</h3>
+                <h3 id="modal-titulo">Usuario</h3>
                 <button class="close-modal" onclick="cerrarModal()">&times;</button>
             </div>
-            <form id="form-cliente">
+            <form id="form-usuario">
+                <input type="hidden" id="cedula-original"> 
+                
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Cédula</label>
-                        <input type="text" id="cedula" required class="input-dark">
+                        <label>Cédula (Usuario)</label>
+                        <input type="text" id="cedula" required class="input-dark" placeholder="Ej: 101110222">
                     </div>
                     <div class="form-group">
-                        <label>Teléfono</label>
-                        <input type="tel" id="telefono" required class="input-dark">
+                        <label>Rol de Acceso</label>
+                        <select id="select-rol" required class="input-dark">
+                            <option value="">Cargando roles...</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Nombre</label>
@@ -108,34 +109,43 @@
                         <label>2do Apellido</label>
                         <input type="text" id="apellido2" class="input-dark">
                     </div>
-                    <div class="form-group" id="grupo-password">
+                    <div class="form-group">
                         <label>Contraseña</label>
-                        <input type="password" id="password" class="input-dark" placeholder="Mínimo 4 caracteres">
+                        <input type="password" id="password" class="input-dark" placeholder="Dejar vacío para no cambiar">
+                    </div>
+                    
+                    <div class="form-group" id="group-estado" style="display:none;">
+                        <label>Estado</label>
+                        <select id="select-estado" class="input-dark">
+                            <option value="1">Activo</option>
+                            <option value="2">Inactivo</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="cerrarModal()" style="background:#333; color:#fff;">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </form>
         </div>
     </div>
 
     <style>
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .modal-content { background: #181818; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; border: 1px solid #333; }
-        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #181818; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; border: 1px solid #333; box-shadow: 0 20px 60px rgba(0,0,0,0.7); }
+        .modal-header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; margin-bottom: 20px; padding-bottom: 10px; }
+        .modal-header h3 { color: var(--pink-primary); margin: 0; }
         .close-modal { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .input-dark { width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 6px; }
+        .input-dark { width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 6px; font-family: inherit; }
+        .input-dark:focus { border-color: var(--pink-primary); outline: none; }
         .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
-        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
     </style>
 
     <script src="js/utils.js"></script>
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/clientes.js"></script>
+    <script src="js/usuarios.js"></script>
 </body>
 </html>
