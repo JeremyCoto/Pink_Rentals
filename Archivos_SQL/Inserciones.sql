@@ -1,24 +1,24 @@
 SET SERVEROUTPUT ON;
 
 -- ==========================================================================
--- PASO 1: INSERCI√ìN DE DATOS BASE (Sin Dependencias Externas)
+-- PASO 1: INSERCI”N DE DATOS BASE (Sin Dependencias Externas)
 -- ==========================================================================
 
 -- FIDE_ESTADOS_TB (Clave primaria: ESTADOS_ID_ESTADO_PK)
 BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_ESTADOS_INSERTAR_SP (1, 'General', 'Activo');
     FIDE_PROYECTO_FINAL_PKG.FIDE_ESTADOS_INSERTAR_SP (2, 'General', 'Inactivo/Anulado');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ESTADOS_INSERTAR_SP (3, 'Reservacion', 'Pendiente');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ESTADOS_INSERTAR_SP (4, 'Reservacion', 'Completada');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ESTADOS_INSERTAR_SP (5, 'Reservacion', 'Cancelada');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ESTADOS_INSERTAR_SP (6, 'Facturacion/Pago', 'Pagado');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ESTADOS_INSERTAR_SP (3, 'ReservaciÛn', 'Pendiente');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ESTADOS_INSERTAR_SP (4, 'ReservaciÛn', 'Completada');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ESTADOS_INSERTAR_SP (5, 'ReservaciÛn', 'Cancelada');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ESTADOS_INSERTAR_SP (6, 'FacturaciÛn/Pago', 'Pagado');
 END;
 /
 
 -- FIDE_ROLES_TB (Clave primaria: ROLES_ID_ROL_PK)
 BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_ROLES_INSERTAR_SP (10, 'Administrador', 'Control total del sistema.');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ROLES_INSERTAR_SP (20, 'Empleado', 'Gesti√≥n de servicios y productos.');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ROLES_INSERTAR_SP (20, 'Empleado', 'GestiÛn de servicios y productos.');
     FIDE_PROYECTO_FINAL_PKG.FIDE_ROLES_INSERTAR_SP (30, 'Cliente', 'Acceso a historial y reservas.');
     FIDE_PROYECTO_FINAL_PKG.FIDE_ROLES_INSERTAR_SP (40, 'Invitado', 'Acceso limitado sin transacciones.');
 END;
@@ -26,7 +26,7 @@ END;
 
 -- FIDE_METODO_PAGO_TB (Clave primaria: METODO_PAGO_ID_METODO_PK)
 BEGIN
-    FIDE_PROYECTO_FINAL_PKG.FIDE_METODO_PAGO_INSERTAR_SP (100, 'Tarjeta de Cr√©dito');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_METODO_PAGO_INSERTAR_SP (100, 'Tarjeta de CrÈdito');
     FIDE_PROYECTO_FINAL_PKG.FIDE_METODO_PAGO_INSERTAR_SP (101, 'Transferencia SINPE');
     FIDE_PROYECTO_FINAL_PKG.FIDE_METODO_PAGO_INSERTAR_SP (102, 'Efectivo');
     FIDE_PROYECTO_FINAL_PKG.FIDE_METODO_PAGO_INSERTAR_SP (103, 'Billetera Digital');
@@ -34,29 +34,29 @@ END;
 /
 
 -- ==========================================================================
--- PASO 2: INSERCI√ìN DE DATOS GEOGR√ÅFICOS (Limitado a 7 Provincias)
+-- PASO 2: INSERCI”N DE DATOS GEOGR¡FICOS (Limitado a 7 Provincias)
 -- ==========================================================================
 
 -- FIDE_PROVINCIA_TB (Clave primaria: PROVINCIA_ID_PROVINCIA_PK)
 BEGIN
-    FIDE_PROYECTO_FINAL_PKG.FIDE_PROVINCIA_INSERTAR_SP (1, 'San Jos√©');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_PROVINCIA_INSERTAR_SP (1, 'San JosÈ');
     FIDE_PROYECTO_FINAL_PKG.FIDE_PROVINCIA_INSERTAR_SP (2, 'Alajuela');
     FIDE_PROYECTO_FINAL_PKG.FIDE_PROVINCIA_INSERTAR_SP (3, 'Cartago');
     FIDE_PROYECTO_FINAL_PKG.FIDE_PROVINCIA_INSERTAR_SP (4, 'Heredia');
     FIDE_PROYECTO_FINAL_PKG.FIDE_PROVINCIA_INSERTAR_SP (5, 'Guanacaste');
     FIDE_PROYECTO_FINAL_PKG.FIDE_PROVINCIA_INSERTAR_SP (6, 'Puntarenas');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_PROVINCIA_INSERTAR_SP (7, 'Lim√≥n');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_PROVINCIA_INSERTAR_SP (7, 'LimÛn');
 END;
 /
 
 -- FIDE_CANTON_TB (Clave primaria: CANTON_ID_CANTON_PK)
 BEGIN
-    -- San Jos√© (1)
-    FIDE_PROYECTO_FINAL_PKG.FIDE_CANTON_INSERTAR_SP (101, 1, 'San Jos√©');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_CANTON_INSERTAR_SP (102, 1, 'Escaz√∫');
+    -- San JosÈ (1)
+    FIDE_PROYECTO_FINAL_PKG.FIDE_CANTON_INSERTAR_SP (101, 1, 'San JosÈ');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_CANTON_INSERTAR_SP (102, 1, 'Escaz˙');
     -- Alajuela (2)
     FIDE_PROYECTO_FINAL_PKG.FIDE_CANTON_INSERTAR_SP (201, 2, 'Alajuela');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_CANTON_INSERTAR_SP (202, 2, 'San Ram√≥n');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_CANTON_INSERTAR_SP (202, 2, 'San RamÛn');
     -- Cartago (3)
     FIDE_PROYECTO_FINAL_PKG.FIDE_CANTON_INSERTAR_SP (301, 3, 'Cartago');
 END;
@@ -64,11 +64,11 @@ END;
 
 -- FIDE_DISTRITO_TB (Clave primaria: DISTRITO_ID_DISTRITO_PK)
 BEGIN
-    -- San Jos√© (101)
+    -- San JosÈ (101)
     FIDE_PROYECTO_FINAL_PKG.FIDE_DISTRITO_INSERTAR_SP (10101, 101, 'Carmen');
     FIDE_PROYECTO_FINAL_PKG.FIDE_DISTRITO_INSERTAR_SP (10102, 101, 'Merced');
-    -- Escaz√∫ (102)
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DISTRITO_INSERTAR_SP (10201, 102, 'Escaz√∫');
+    -- Escaz˙ (102)
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DISTRITO_INSERTAR_SP (10201, 102, 'Escaz˙');
     -- Alajuela (201)
     FIDE_PROYECTO_FINAL_PKG.FIDE_DISTRITO_INSERTAR_SP (20101, 201, 'Alajuela');
     -- Cartago (301)
@@ -77,50 +77,49 @@ BEGIN
 END;
 /
 
-
 SET SERVEROUTPUT ON;
 
 BEGIN
     -- -------------------------------------------------------------------------
-    -- CLIENTE 1: Juan P√©rez
+    -- CLIENTE 1: Juan PÈrez
     -- -------------------------------------------------------------------------
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('101110111', 'Juan', 'P√©rez', 'Castro', 'Pass123!', 30);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('101110111', 'Juan', 'PÈrez', 'Castro', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('101110111', '8801-0001');
 
-    -- CLIENTE 2: Mar√≠a Rodr√≠guez
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('102220222', 'Mar√≠a', 'Rodr√≠guez', 'Sol√≠s', 'Pass123!', 30);
+    -- CLIENTE 2: MarÌa RodrÌguez
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('102220222', 'MarÌa', 'RodrÌguez', 'SolÌs', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('102220222', '8802-0002');
 
-    -- CLIENTE 3: Carlos Gonz√°lez
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('103330333', 'Carlos', 'Gonz√°lez', 'Mora', 'Pass123!', 30);
+    -- CLIENTE 3: Carlos Gonz·lez
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('103330333', 'Carlos', 'Gonz·lez', 'Mora', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('103330333', '8803-0003');
 
     -- CLIENTE 4: Ana Vargas
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('104440444', 'Ana', 'Vargas', 'Rojas', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('104440444', '8804-0004');
 
-    -- CLIENTE 5: Luis Jim√©nez
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('105550555', 'Luis', 'Jim√©nez', 'Salazar', 'Pass123!', 30);
+    -- CLIENTE 5: Luis JimÈnez
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('105550555', 'Luis', 'JimÈnez', 'Salazar', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('105550555', '8805-0005');
 
     -- CLIENTE 6: Elena Castro
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('201110111', 'Elena', 'Castro', 'M√©ndez', 'Pass123!', 30);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('201110111', 'Elena', 'Castro', 'MÈndez', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('201110111', '8806-0006');
 
-    -- CLIENTE 7: Pedro Fern√°ndez
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('202220222', 'Pedro', 'Fern√°ndez', 'Quir√≥s', 'Pass123!', 30);
+    -- CLIENTE 7: Pedro Fern·ndez
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('202220222', 'Pedro', 'Fern·ndez', 'QuirÛs', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('202220222', '8807-0007');
 
-    -- CLIENTE 8: Laura Ram√≠rez
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('203330333', 'Laura', 'Ram√≠rez', 'L√≥pez', 'Pass123!', 30);
+    -- CLIENTE 8: Laura RamÌrez
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('203330333', 'Laura', 'RamÌrez', 'LÛpez', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('203330333', '8808-0008');
 
     -- CLIENTE 9: Jorge Herrera
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('204440444', 'Jorge', 'Herrera', 'S√°nchez', 'Pass123!', 30);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('204440444', 'Jorge', 'Herrera', 'S·nchez', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('204440444', '8809-0009');
 
-    -- CLIENTE 10: Sof√≠a Araya
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('205550555', 'Sof√≠a', 'Araya', 'Monge', 'Pass123!', 30);
+    -- CLIENTE 10: SofÌa Araya
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('205550555', 'SofÌa', 'Araya', 'Monge', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('205550555', '8810-0010');
 
     -- CLIENTE 11: Diego Cordero
@@ -131,8 +130,8 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('302220222', 'Valentina', 'Valverde', 'Mora', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('302220222', '8812-0012');
 
-    -- CLIENTE 13: Andr√©s Murillo
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('303330333', 'Andr√©s', 'Murillo', 'Rojas', 'Pass123!', 30);
+    -- CLIENTE 13: AndrÈs Murillo
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('303330333', 'AndrÈs', 'Murillo', 'Rojas', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('303330333', '8813-0013');
 
     -- CLIENTE 14: Camila Navarro
@@ -159,12 +158,13 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('404440444', 'Felipe', 'Quesada', 'Chaves', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('404440444', '8819-0019');
 
-    -- CLIENTE 20: Natalia Z√∫√±iga
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('405550555', 'Natalia', 'Z√∫√±iga', 'Guti√©rrez', 'Pass123!', 30);
+    -- CLIENTE 20: Natalia Z˙Òiga
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('405550555', 'Natalia', 'Z˙Òiga', 'GutiÈrrez', 'Pass123!', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('405550555', '8820-0020');
 
     DBMS_OUTPUT.PUT_LINE('=== Carga de 20 Clientes completada exitosamente ===');
 END;
+/
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -173,10 +173,10 @@ END;
 SET SERVEROUTPUT ON;
 
 BEGIN
-    DBMS_OUTPUT.PUT_LINE('>>> INICIO DE CARGA DE DATOS: EVENTOS Y FOTOGRAF√çA <<<');
+    DBMS_OUTPUT.PUT_LINE('>>> INICIO DE CARGA DE DATOS: EVENTOS Y FOTOGRAFÕA <<<');
 
     -- ==========================================================================
-    -- 1. EXPANSI√ìN GEOGR√ÅFICA (Necesaria para las direcciones de 40 usuarios)
+    -- 1. EXPANSI”N GEOGR¡FICA (Necesaria para las direcciones de 40 usuarios)
     -- ==========================================================================
     -- Ampliamos cantones y distritos para dar variedad a las ubicaciones de eventos
     -- Heredia
@@ -189,91 +189,91 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_DISTRITO_INSERTAR_SP(50102, 501, 'Nacascolo (Papagayo)');
 
     -- ==========================================================================
-    -- 2. CAT√ÅLOGOS DE NEGOCIO (Productos y Servicios de Fotograf√≠a/Eventos)
+    -- 2. CAT¡LOGOS DE NEGOCIO (Productos y Servicios de FotografÌa/Eventos)
     -- ==========================================================================
     
-    -- 2.1 Categor√≠as de Productos (Hardware e Insumos)
-    FIDE_PROYECTO_FINAL_PKG.FIDE_CATEGORIA_PRODUCTO_INSERTAR_SP(10, 'Mobiliario Iluminado', 'Letras gigantes, n√∫meros y estructuras LED');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_CATEGORIA_PRODUCTO_INSERTAR_SP(11, 'Tecnolog√≠a Booth', 'Brazos rob√≥ticos, c√°maras 360, iPads');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_CATEGORIA_PRODUCTO_INSERTAR_SP(12, 'Pistas de Baile', 'M√≥dulos de piso LED y acr√≠lico');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_CATEGORIA_PRODUCTO_INSERTAR_SP(13, 'Fotograf√≠a Profesional', 'C√°maras DSLR, Lentes, Flashes');
+    -- 2.1 CategorÌas de Productos (Hardware e Insumos)
+    FIDE_PROYECTO_FINAL_PKG.FIDE_CATEGORIA_PRODUCTO_INSERTAR_SP(10, 'Mobiliario Iluminado', 'Letras gigantes, n˙meros y estructuras LED');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_CATEGORIA_PRODUCTO_INSERTAR_SP(11, 'TecnologÌa Booth', 'Brazos robÛticos, c·maras 360, iPads');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_CATEGORIA_PRODUCTO_INSERTAR_SP(12, 'Pistas de Baile', 'MÛdulos de piso LED y acrÌlico');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_CATEGORIA_PRODUCTO_INSERTAR_SP(13, 'FotografÌa Profesional', 'C·maras DSLR, Lentes, Flashes');
 
-    -- 2.2 Categor√≠as de Servicios (Mano de obra y Alquiler)
+    -- 2.2 CategorÌas de Servicios (Mano de obra y Alquiler)
     FIDE_PROYECTO_FINAL_PKG.FIDE_CATEGORIA_SERVICIO_INSERTAR_SP(20, 'Experiencia 360', 'Servicio completo de video booth con operario');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_CATEGORIA_SERVICIO_INSERTAR_SP(21, 'Instalaci√≥n Estructural', 'Montaje de pistas y letras');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_CATEGORIA_SERVICIO_INSERTAR_SP(22, 'Cobertura Fotogr√°fica', 'Fotograf√≠a social y corporativa');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_CATEGORIA_SERVICIO_INSERTAR_SP(21, 'InstalaciÛn Estructural', 'Montaje de pistas y letras');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_CATEGORIA_SERVICIO_INSERTAR_SP(22, 'Cobertura Fotogr·fica', 'FotografÌa social y corporativa');
 
-    -- 2.3 Productos (Inventario F√≠sico)
+    -- 2.3 Productos (Inventario FÌsico)
     -- Mobiliario
-    FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(1001, 'Letra Gigante "L"', 'Letra luminosa 1.20m luz c√°lida', 25000, 5, 10);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(1002, 'Letra Gigante "O"', 'Letra luminosa 1.20m luz c√°lida', 25000, 5, 10);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(1003, 'Letra Gigante "V"', 'Letra luminosa 1.20m luz c√°lida', 25000, 5, 10);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(1004, 'Letra Gigante "E"', 'Letra luminosa 1.20m luz c√°lida', 25000, 5, 10);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(1001, 'Letra Gigante "L"', 'Letra luminosa 1.20m luz c·lida', 25000, 5, 10);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(1002, 'Letra Gigante "O"', 'Letra luminosa 1.20m luz c·lida', 25000, 5, 10);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(1003, 'Letra Gigante "V"', 'Letra luminosa 1.20m luz c·lida', 25000, 5, 10);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(1004, 'Letra Gigante "E"', 'Letra luminosa 1.20m luz c·lida', 25000, 5, 10);
     -- Pista
-    FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(1005, 'M√≥dulo Pista LED Pixel', 'Panel 1x1m infinity mirror', 45000, 60, 12);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(1005, 'MÛdulo Pista LED Pixel', 'Panel 1x1m infinity mirror', 45000, 60, 12);
     -- Equipo Foto
-    FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(1006, 'C√°mara Sony A7IV', 'C√°mara Full Frame 33MP', 1800000, 3, 13);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(1006, 'C·mara Sony A7IV', 'C·mara Full Frame 33MP', 1800000, 3, 13);
     FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(1007, 'Brazo Motorizado 360', 'Plataforma para 4 personas', 950000, 2, 11);
 
     -- 2.4 Servicios (Lo que se factura por hora/evento)
     FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_INSERTAR_SP(2001, 'Alquiler Photo Booth 360 (3 Horas)', 'Incluye operario, props y videos ilimitados', 250000, 20);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_INSERTAR_SP(2002, 'Alquiler Pista LED (20m2)', 'Instalaci√≥n de pista 4x5 metros', 350000, 21);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_INSERTAR_SP(2002, 'Alquiler Pista LED (20m2)', 'InstalaciÛn de pista 4x5 metros', 350000, 21);
     FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_INSERTAR_SP(2003, 'Alquiler Letras LOVE', 'Set completo de 4 letras gigantes', 80000, 21);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_INSERTAR_SP(2004, 'Fotograf√≠a Boda (8 Horas)', 'Cobertura completa + edici√≥n', 650000, 22);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_INSERTAR_SP(2004, 'FotografÌa Boda (8 Horas)', 'Cobertura completa + ediciÛn', 650000, 22);
 
     -- 2.5 Paquetes (Combos)
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAQUETE_INSERTAR_SP(50, 'Boda Premium', 'Pista LED + LOVE + Booth 360', 600000); -- Precio con descuento
     
-    -- Relaci√≥n Paquete-Servicio (Tabla intermedia)
+    -- RelaciÛn Paquete-Servicio (Tabla intermedia)
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAQUETES_POR_SERVICIO_INSERTAR_SP(50, 2001); -- Booth
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAQUETES_POR_SERVICIO_INSERTAR_SP(50, 2002); -- Pista
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAQUETES_POR_SERVICIO_INSERTAR_SP(50, 2003); -- Letras
 
     -- ==========================================================================
-    -- 3. INSERCI√ìN DE 40 USUARIOS (EMPLEADOS Y CLIENTES) - L√çNEA POR L√çNEA
+    -- 3. INSERCI”N DE 40 USUARIOS (EMPLEADOS Y CLIENTES) - LÕNEA POR LÕNEA
     -- ==========================================================================
-    -- Nota: Usar√© rangos de c√©dula 600... para empleados y 700... para clientes nuevos.
+    -- Nota: UsarÈ rangos de cÈdula 600... para empleados y 700... para clientes nuevos.
     
-    -- --- GRUPO A: 5 EMPLEADOS (Staff t√©cnico y administrativo) ---
+    -- --- GRUPO A: 5 EMPLEADOS (Staff tÈcnico y administrativo) ---
     
     -- Empleado 1: Gerente
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('600000001', 'Roberto', 'M√©ndez', 'Arias', 'AdminPass1!', 20);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('600000001', 'Roberto', 'MÈndez', 'Arias', 'AdminPass1!', 20);
     FIDE_PROYECTO_FINAL_PKG.FIDE_EMPLEADOS_INSERTAR_SP('600000001', 'Gerente General', TO_DATE('2020-01-15','YYYY-MM-DD'));
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(101, 'roberto.mendez@empresa.com', 'Corporativo', '600000001');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(501, 10101, '600000001', 'Oficina Central, San Jos√©');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(501, 10101, '600000001', 'Oficina Central, San JosÈ');
 
-    -- Empleado 2: T√©cnico Pistas LED
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('600000002', 'Esteban', 'Quir√≥s', 'Vega', 'Staff123!', 20);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_EMPLEADOS_INSERTAR_SP('600000002', 'T√©cnico Instalador', TO_DATE('2021-05-20','YYYY-MM-DD'));
+    -- Empleado 2: TÈcnico Pistas LED
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('600000002', 'Esteban', 'QuirÛs', 'Vega', 'Staff123!', 20);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_EMPLEADOS_INSERTAR_SP('600000002', 'TÈcnico Instalador', TO_DATE('2021-05-20','YYYY-MM-DD'));
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(102, 'esteban.q@empresa.com', 'Corporativo', '600000002');
     FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(502, 20101, '600000002', 'Alajuela Centro, Av 2');
 
     -- Empleado 3: Operador 360
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('600000003', 'Luc√≠a', 'Campos', 'Solis', 'Staff123!', 20);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('600000003', 'LucÌa', 'Campos', 'Solis', 'Staff123!', 20);
     FIDE_PROYECTO_FINAL_PKG.FIDE_EMPLEADOS_INSERTAR_SP('600000003', 'Operadora Booth', TO_DATE('2022-02-10','YYYY-MM-DD'));
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(103, 'lucia.c@empresa.com', 'Corporativo', '600000003');
     FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(503, 40101, '600000003', 'Heredia, Condominio Flores');
 
-    -- Empleado 4: Fot√≥grafo Senior
+    -- Empleado 4: FotÛgrafo Senior
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('600000004', 'Alejandro', 'Ruiz', 'Mora', 'Staff123!', 20);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_EMPLEADOS_INSERTAR_SP('600000004', 'Fot√≥grafo Principal', TO_DATE('2019-11-01','YYYY-MM-DD'));
+    FIDE_PROYECTO_FINAL_PKG.FIDE_EMPLEADOS_INSERTAR_SP('600000004', 'FotÛgrafo Principal', TO_DATE('2019-11-01','YYYY-MM-DD'));
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(104, 'ale.ruiz@empresa.com', 'Corporativo', '600000004');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(504, 10201, '600000004', 'Escaz√∫, Guachipel√≠n');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(504, 10201, '600000004', 'Escaz˙, GuachipelÌn');
 
-    -- Empleado 5: Log√≠stica
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('600000005', 'Mariana', 'L√≥pez', 'G√≥mez', 'Staff123!', 20);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_EMPLEADOS_INSERTAR_SP('600000005', 'Coordinadora Log√≠stica', TO_DATE('2023-01-05','YYYY-MM-DD'));
+    -- Empleado 5: LogÌstica
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('600000005', 'Mariana', 'LÛpez', 'GÛmez', 'Staff123!', 20);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_EMPLEADOS_INSERTAR_SP('600000005', 'Coordinadora LogÌstica', TO_DATE('2023-01-05','YYYY-MM-DD'));
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(105, 'mariana.l@empresa.com', 'Corporativo', '600000005');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(505, 10102, '600000005', 'Paseo Col√≥n, Torre 1');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(505, 10102, '600000005', 'Paseo ColÛn, Torre 1');
 
 
     -- --- GRUPO B: 35 CLIENTES NUEVOS (Planificadores de bodas, empresas, particulares) ---
     
     -- Cliente 6
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000006', 'Carla', 'Venegas', 'S√°enz', 'Client123', 30);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000006', 'Carla', 'Venegas', 'S·enz', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000006', '8888-0006');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(106, 'carla.v@gmail.com', 'Personal', '700000006');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(506, 10201, '700000006', 'Escaz√∫, Trejos Montealegre');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(506, 10201, '700000006', 'Escaz˙, Trejos Montealegre');
 
     -- Cliente 7
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000007', 'Felipe', 'Montero', 'Rojas', 'Client123', 30);
@@ -285,7 +285,7 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000008', 'Patricia', 'Alfaro', 'Castro', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000008', '8888-0008');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(108, 'patty.alfaro@yahoo.com', 'Personal', '700000008');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(508, 20101, '700000008', 'Alajuela, La Gu√°cima');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(508, 20101, '700000008', 'Alajuela, La Gu·cima');
 
     -- Cliente 9
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000009', 'Diego', 'Salazar', 'Brenes', 'Client123', 30);
@@ -294,16 +294,16 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(509, 50102, '700000009', 'Guanacaste, Hotel Dreams');
 
     -- Cliente 10
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000010', 'Sofia', 'Guzm√°n', 'Mora', 'Client123', 30);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000010', 'Sofia', 'Guzm·n', 'Mora', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000010', '8888-0010');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(110, 'sofia.guz@outlook.com', 'Personal', '700000010');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(510, 30101, '700000010', 'Cartago, Los √Ångeles');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(510, 30101, '700000010', 'Cartago, Los ¡ngeles');
 
     -- Cliente 11
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000011', 'Javier', 'Vargas', 'L√≥pez', 'Client123', 30);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000011', 'Javier', 'Vargas', 'LÛpez', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000011', '8888-0011');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(111, 'javi.vargas@gmail.com', 'Personal', '700000011');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(511, 10101, '700000011', 'San Jos√©, Barrio Am√≥n');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(511, 10101, '700000011', 'San JosÈ, Barrio AmÛn');
 
     -- Cliente 12
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000012', 'Elena', 'Rojas', 'Solis', 'Client123', 30);
@@ -315,34 +315,34 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000013', 'Marco', 'Poveda', 'Salas', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000013', '8888-0013');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(113, 'marco.pov@techcr.com', 'Trabajo', '700000013');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(513, 10201, '700000013', 'Escaz√∫, Multiplaza');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(513, 10201, '700000013', 'Escaz˙, Multiplaza');
 
     -- Cliente 14
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000014', 'Daniela', 'Cordero', 'V√≠quez', 'Client123', 30);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000014', 'Daniela', 'Cordero', 'VÌquez', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000014', '8888-0014');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(114, 'dani.cor@gmail.com', 'Personal', '700000014');
     FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(514, 20101, '700000014', 'Alajuela, Coyol');
 
     -- Cliente 15
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000015', 'Andr√©s', 'Madrigal', 'Z√∫√±iga', 'Client123', 30);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000015', 'AndrÈs', 'Madrigal', 'Z˙Òiga', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000015', '8888-0015');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(115, 'andres.mad@gmail.com', 'Personal', '700000015');
     FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(515, 30102, '700000015', 'Cartago, Tejar');
 
     -- Cliente 16
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000016', 'Gabriela', 'S√°nchez', 'Ure√±a', 'Client123', 30);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000016', 'Gabriela', 'S·nchez', 'UreÒa', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000016', '8888-0016');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(116, 'gaby.sanchez@eventoscr.com', 'Trabajo', '700000016');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(516, 10102, '700000016', 'San Jos√©, Sabana Sur');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(516, 10102, '700000016', 'San JosÈ, Sabana Sur');
 
     -- Cliente 17
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000017', 'Ricardo', 'Jim√©nez', 'Soto', 'Client123', 30);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000017', 'Ricardo', 'JimÈnez', 'Soto', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000017', '8888-0017');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(117, 'ricardo.jim@gmail.com', 'Personal', '700000017');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(517, 40101, '700000017', 'Heredia, San Joaqu√≠n');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(517, 40101, '700000017', 'Heredia, San JoaquÌn');
 
     -- Cliente 18
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000018', 'Valeria', 'Fern√°ndez', 'Reyes', 'Client123', 30);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000018', 'Valeria', 'Fern·ndez', 'Reyes', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000018', '8888-0018');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(118, 'vale.fer@gmail.com', 'Personal', '700000018');
     FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(518, 50101, '700000018', 'Liberia, Solarium');
@@ -351,13 +351,13 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000019', 'Jorge', 'Araya', 'Monge', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000019', '8888-0019');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(119, 'jorge.araya@gmail.com', 'Personal', '700000019');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(519, 10201, '700000019', 'Escaz√∫, Bello Horizonte');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(519, 10201, '700000019', 'Escaz˙, Bello Horizonte');
 
     -- Cliente 20
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000020', 'Natalia', 'Cruz', 'Vega', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000020', '8888-0020');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(120, 'naty.cruz@gmail.com', 'Personal', '700000020');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(520, 20101, '700000020', 'Alajuela, R√≠o Segundo');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(520, 20101, '700000020', 'Alajuela, RÌo Segundo');
 
     -- Cliente 21
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000021', 'Esteban', 'Solano', 'Campos', 'Client123', 30);
@@ -381,7 +381,7 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000024', 'Camila', 'Mora', 'Chaves', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000024', '8888-0024');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(124, 'cami.mora@gmail.com', 'Personal', '700000024');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(524, 10101, '700000024', 'San Jos√©, Escalante');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(524, 10101, '700000024', 'San JosÈ, Escalante');
 
     -- Cliente 25
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000025', 'Luis', 'Herrera', 'Villalobos', 'Client123', 30);
@@ -393,13 +393,13 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000026', 'Ana', 'Castillo', 'Quesada', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000026', '8888-0026');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(126, 'ana.castillo@gmail.com', 'Personal', '700000026');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(526, 10201, '700000026', 'Escaz√∫, San Rafael');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(526, 10201, '700000026', 'Escaz˙, San Rafael');
 
     -- Cliente 27
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000027', 'Victor', 'Ramirez', 'Sabor√≠o', 'Client123', 30);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000027', 'Victor', 'Ramirez', 'SaborÌo', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000027', '8888-0027');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(127, 'victor.ram@gmail.com', 'Personal', '700000027');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(527, 30101, '700000027', 'Cartago, Bas√≠lica');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(527, 30101, '700000027', 'Cartago, BasÌlica');
 
     -- Cliente 28
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000028', 'Paola', 'Chacon', 'Arce', 'Client123', 30);
@@ -411,7 +411,7 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000029', 'Manuel', 'Ulate', 'Murillo', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000029', '8888-0029');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(129, 'manuel.ulate@gmail.com', 'Personal', '700000029');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(529, 10102, '700000029', 'San Jos√©, Pavas');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(529, 10102, '700000029', 'San JosÈ, Pavas');
 
     -- Cliente 30
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000030', 'Carolina', 'Vindas', 'Rojas', 'Client123', 30);
@@ -420,7 +420,7 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(530, 20101, '700000030', 'Alajuela, Ciruelas');
 
     -- Cliente 31
-    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000031', 'Fernando', 'Siles', 'G√≥mez', 'Client123', 30);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000031', 'Fernando', 'Siles', 'GÛmez', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000031', '8888-0031');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(131, 'fernando.siles@gmail.com', 'Personal', '700000031');
     FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(531, 30102, '700000031', 'Cartago, Agua Caliente');
@@ -435,19 +435,19 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000033', 'Gustavo', 'Perez', 'Solano', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000033', '8888-0033');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(133, 'gustavo.perez@gmail.com', 'Personal', '700000033');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(533, 10201, '700000033', 'Escaz√∫, Jaboncillos');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(533, 10201, '700000033', 'Escaz˙, Jaboncillos');
 
     -- Cliente 34
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000034', 'Raquel', 'Badilla', 'Torres', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000034', '8888-0034');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(134, 'raquel.bad@gmail.com', 'Personal', '700000034');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(534, 40101, '700000034', 'Heredia, Guarar√≠');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(534, 40101, '700000034', 'Heredia, GuararÌ');
 
     -- Cliente 35
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000035', 'Hector', 'Mata', 'Sanchez', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000035', '8888-0035');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(135, 'hector.mata@gmail.com', 'Personal', '700000035');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(535, 10102, '700000035', 'San Jos√©, Rohrmoser');
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(535, 10102, '700000035', 'San JosÈ, Rohrmoser');
 
     -- Cliente 36
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000036', 'Xinia', 'Loria', 'Campos', 'Client123', 30);
@@ -477,20 +477,19 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP('700000040', 'Silvia', 'Reyes', 'Castro', 'Client123', 30);
     FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP('700000040', '8888-0040');
     FIDE_PROYECTO_FINAL_PKG.FIDE_CORREO_INSERTAR_SP(140, 'silvia.reyes@gmail.com', 'Personal', '700000040');
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(540, 10101, '700000040', 'San Jos√©, Otoya');
-
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DIRECCIONES_INSERTAR_SP(540, 10101, '700000040', 'San JosÈ, Otoya');
 
     -- ==========================================================================
     -- 4. OPERACIONES TRANSACCIONALES (RESERVAS, ASIGNACIONES, PAGOS, FACTURAS)
     -- ==========================================================================
-    -- Generaremos datos robustos para algunos de los clientes reci√©n creados para simular actividad.
+    -- Generaremos datos robustos para algunos de los clientes reciÈn creados para simular actividad.
     
     -- --- CASO 1: Boda en Guanacaste (Cliente 9 - Diego Salazar) ---
     -- Reserva
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(901, TO_DATE('2025-01-20','YYYY-MM-DD'), TO_TIMESTAMP('14:00','HH24:MI'), TO_TIMESTAMP('22:00','HH24:MI'), '700000009', 509);
     -- Detalles (Servicio Paquete Boda Premium)
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(8001, 1, 600000, NULL, 901, 50); -- Usa Paquete ID 50
-    -- Asignaci√≥n de Inventario F√≠sico (Letras LOVE y Pista)
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(901, 1, 1, 600000, NULL, 50); -- Usa Paquete ID 50
+    -- AsignaciÛn de Inventario FÌsico (Letras LOVE y Pista)
     FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(10001, 'Letra L asignada', 1001, 901);
     FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(10002, 'Letra O asignada', 1002, 901);
     FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(10003, 'Letra V asignada', 1003, 901);
@@ -498,40 +497,44 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(10005, 'Modulo Pista Principal', 1005, 901);
     -- Pago (Transferencia)
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(7001, SYSDATE, 678000, 101); -- Monto + 13% IVA aprox
-    -- Facturaci√≥n
+    -- FacturaciÛn
     FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6001, SYSDATE, 678000, 78000, 'Paquete Boda Premium Guanacaste', 7001, 901);
     -- Detalle Factura
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(5001, 1, 600000, 600000, 6001);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(6001, 1, 1, 600000, 600000, NULL);
 
 
-    -- --- CASO 2: Fiesta Privada Escaz√∫ (Cliente 6 - Carla Venegas) ---
+    -- --- CASO 2: Fiesta Privada Escaz˙ (Cliente 6 - Carla Venegas) ---
     -- Alquiler solo Photo Booth 360
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(902, TO_DATE('2024-12-15','YYYY-MM-DD'), TO_TIMESTAMP('18:00','HH24:MI'), TO_TIMESTAMP('21:00','HH24:MI'), '700000006', 506);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(8002, 1, 250000, 2001, 902, NULL); -- Servicio 2001
-    -- Asignaci√≥n (Brazo Motorizado)
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(902, 1, 1, 250000, 2001, NULL); -- Servicio 2001
+    -- AsignaciÛn (Brazo Motorizado)
     FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(10006, 'Brazo 360 Unidad 1', 1007, 902);
     -- Pago (Tarjeta)
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(7002, SYSDATE, 282500, 100);
     -- Factura
     FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6002, SYSDATE, 282500, 32500, 'Servicio Booth 360 - 3 Horas', 7002, 902);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(5002, 1, 250000, 250000, 6002);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(6002, 1, 1, 250000, 250000, 2001);
+
 
 
     -- --- CASO 3: Evento Corporativo Heredia (Cliente 7 - Felipe Montero) ---
-    -- Alquiler Letras y Fotograf√≠a
+    -- Alquiler Letras y FotografÌa
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(903, TO_DATE('2024-11-30','YYYY-MM-DD'), TO_TIMESTAMP('09:00','HH24:MI'), TO_TIMESTAMP('17:00','HH24:MI'), '700000007', 507);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(8003, 1, 80000, 2003, 903, NULL); -- Letras
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(8004, 1, 650000, 2004, 903, NULL); -- Fotograf√≠a
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(903, 1, 1, 80000, 2003, NULL); -- Letras
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(903, 2, 1, 650000, 2004, NULL);
+ -- FotografÌa
     -- Pago (SINPE)
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(7003, SYSDATE, 824900, 101);
     -- Factura
     FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6003, SYSDATE, 824900, 94900, 'Evento Corporativo Anual', 7003, 903);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(5003, 1, 80000, 80000, 6003);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(5004, 1, 650000, 650000, 6003);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(6003, 1, 1, 80000, 80000, 2003);
+
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(6003, 2, 1, 650000, 650000, 2004);
 
 
-    -- --- CASO 4: Evento Cancelado (Cliente 16 - Gabriela S√°nchez) ---
-    -- Simulaci√≥n de un estado "Cancelado" (Estado 5 en Reservaciones)
+
+    -- --- CASO 4: Evento Cancelado (Cliente 16 - Gabriela S·nchez) ---
+    -- SimulaciÛn de un estado "Cancelado" (Estado 5 en Reservaciones)
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(904, TO_DATE('2025-02-14','YYYY-MM-DD'), TO_TIMESTAMP('19:00','HH24:MI'), TO_TIMESTAMP('23:00','HH24:MI'), '700000016', 516);
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(8005, 1, 350000, 2002, 904, NULL); -- Pista LED
     -- Actualizamos a cancelado para probar funcionalidad de estados
@@ -541,6 +544,5 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('>>> CARGA MASIVA COMPLETADA CORRECTAMENTE <<<');
 END;
 /
-
 
 select * from FIDE_DISTRITO_tb

@@ -4,15 +4,15 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('>>> INICIO DE CARGA MANUAL FUTURA 2026 - LINEA POR LINEA <<<');
 
     -- ==========================================================================
-    -- ENERO 2026: EVENTOS DE INICIO DE AÃ‘O (KICK-OFF CORPORATIVO Y BODAS)
+    -- ENERO 2026: EVENTOS DE INICIO DE AÑO (KICK-OFF CORPORATIVO Y BODAS)
     -- ==========================================================================
 
     -- 1. Kick-Off Corporativo TechCR (Cliente 13 - Marco Poveda)
-    -- Fecha: 15 Enero 2026. Servicio: Audio y ProyecciÃ³n.
+    -- Fecha: 15 Enero 2026. Servicio: Audio y Proyección.
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(2001, TO_DATE('2026-01-15','YYYY-MM-DD'), TO_TIMESTAMP('08:00','HH24:MI'), TO_TIMESTAMP('17:00','HH24:MI'), '700000013', 513);
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2001, 1, 1, 600000, 2011, NULL); -- Proyector 4K (Nuevo item ficticio o 2006 Audio)
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2001, 2, 1, 150000, 2006, NULL); -- Audio BÃ¡sico
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2001, 2, 1, 150000, 2006, NULL); -- Audio Básico
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11001, 'Montaje Auditorio Principal', 1009, 2001);
     
@@ -20,17 +20,17 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(8001, TO_DATE('2026-01-05','YYYY-MM-DD'), 847500, 101); -- 750k + IVA
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(9001, TO_DATE('2026-01-05','YYYY-MM-DD'), 847500, 97500, 'KickOff 2026 TechCR', 8001, 2001);
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(9001, 1, 1, 600000, 600000, 2011); -- ProyecciÃ³n
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(9001, 1, 1, 600000, 600000, 2011); -- Proyección
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(9001, 2, 1, 150000, 150000, 2006); -- Audio
 
 
-    -- 2. Boda Destino en Hotel Punta Leona (Cliente 41 - Hotel JacÃ³/Garabito)
-    -- Fecha: 24 Enero 2026. Paquete: Boda de EnsueÃ±o.
+    -- 2. Boda Destino en Hotel Punta Leona (Cliente 41 - Hotel Jacó/Garabito)
+    -- Fecha: 24 Enero 2026. Paquete: Boda de Ensueño.
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(2002, TO_DATE('2026-01-24','YYYY-MM-DD'), TO_TIMESTAMP('15:00','HH24:MI'), TO_TIMESTAMP('23:00','HH24:MI'), '700000041', 641);
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2002, 1, 1, 750000, NULL, 60); -- Paquete ID 60
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11002, 'LogÃ­stica Playa Blanca', 1008, 2002); -- Drone
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11002, 'Logística Playa Blanca', 1008, 2002); -- Drone
     FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11003, 'Efectos Especiales', 1010, 2002); -- Humo
     
     -- Pago Reserva 50%
@@ -44,14 +44,14 @@ BEGIN
     -- FEBRERO 2026: SAN VALENTIN Y BODAS
     -- ==========================================================================
 
-    -- 3. Fiesta San ValentÃ­n Privada (Cliente 6 - Carla Venegas)
+    -- 3. Fiesta San Valentín Privada (Cliente 6 - Carla Venegas)
     -- Fecha: 14 Febrero 2026.
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(2003, TO_DATE('2026-02-14','YYYY-MM-DD'), TO_TIMESTAMP('19:00','HH24:MI'), TO_TIMESTAMP('23:00','HH24:MI'), '700000006', 506);
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2003, 1, 1, 80000, 2003, NULL); -- Letras LOVE
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2003, 2, 1, 250000, 2001, NULL); -- Booth 360
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11004, 'Letras LOVE JardÃ­n', 1003, 2003);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11004, 'Letras LOVE Jardín', 1003, 2003);
     
     -- Pago Completo
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(8003, TO_DATE('2026-02-10','YYYY-MM-DD'), 372900, 100); -- Tarjeta
@@ -61,13 +61,13 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(9003, 2, 1, 250000, 250000, 2001);
 
 
-    -- 4. Boda Civil PequeÃ±a (Cliente 37 - Eduardo Calderon)
+    -- 4. Boda Civil Pequeña (Cliente 37 - Eduardo Calderon)
     -- Fecha: 28 Febrero 2026.
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(2004, TO_DATE('2026-02-28','YYYY-MM-DD'), TO_TIMESTAMP('11:00','HH24:MI'), TO_TIMESTAMP('16:00','HH24:MI'), '700000037', 537);
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2004, 1, 1, 650000, 2004, NULL); -- FotografÃ­a Completa
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2004, 1, 1, 650000, 2004, NULL); -- Fotografía Completa
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11005, 'FotÃ³grafo Alejandro', 1006, 2004);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11005, 'Fotógrafo Alejandro', 1006, 2004);
     
     -- Pago Parcial
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(8004, TO_DATE('2026-02-01','YYYY-MM-DD'), 200000, 101);
@@ -80,14 +80,14 @@ BEGIN
     -- MARZO 2026: TEMPORADA DE VERANO
     -- ==========================================================================
 
-    -- 5. Festival de MÃºsica Local (Cliente 43 - Corporativo LimÃ³n)
+    -- 5. Festival de Música Local (Cliente 43 - Corporativo Limón)
     -- Fecha: 15 Marzo 2026.
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(2005, TO_DATE('2026-03-15','YYYY-MM-DD'), TO_TIMESTAMP('12:00','HH24:MI'), TO_TIMESTAMP('22:00','HH24:MI'), '700000043', 643);
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2005, 1, 4, 350000, 2002, NULL); -- 4 MÃ³dulos de Pista LED (Grande)
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2005, 1, 4, 350000, 2002, NULL); -- 4 Módulos de Pista LED (Grande)
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2005, 2, 2, 120000, 2005, NULL); -- 2 Horas Drone
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11006, 'Montaje Tarima LED LimÃ³n', 1005, 2005);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11006, 'Montaje Tarima LED Limón', 1005, 2005);
     
     -- Pago Total
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(8005, TO_DATE('2026-03-10','YYYY-MM-DD'), 1853200, 101); -- (1.4M + 240k) * 1.13 IVA
@@ -101,17 +101,17 @@ BEGIN
     -- ABRIL 2026: SEMANA SANTA (EVENTOS PLAYA)
     -- ==========================================================================
 
-    -- 6. ActivaciÃ³n de Marca (Cliente 44 - Generico/Agencia)
-    -- Fecha: 04 Abril 2026 (SÃ¡bado Santo). Lugar: Tamarindo (Guanacaste).
+    -- 6. Activación de Marca (Cliente 44 - Generico/Agencia)
+    -- Fecha: 04 Abril 2026 (Sábado Santo). Lugar: Tamarindo (Guanacaste).
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(2006, TO_DATE('2026-04-04','YYYY-MM-DD'), TO_TIMESTAMP('10:00','HH24:MI'), TO_TIMESTAMP('16:00','HH24:MI'), '700000044', 644);
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2006, 1, 2, 250000, 2001, NULL); -- 2 Booths 360 SimultÃ¡neos
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2006, 1, 2, 250000, 2001, NULL); -- 2 Booths 360 Simultáneos
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11007, 'Booth 1 Hotel Diria', 1007, 2006);
     FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11008, 'Booth 2 Playa', 1007, 2006);
     
-    -- Factura CrÃ©dito (Sin pago aÃºn registrado en sistema, solo factura emitida)
-    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(9006, TO_DATE('2026-04-01','YYYY-MM-DD'), 565000, 65000, 'ActivaciÃ³n Verano', NULL, 2006); -- NULL en pago
+    -- Factura Crédito (Sin pago aún registrado en sistema, solo factura emitida)
+    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(9006, TO_DATE('2026-04-01','YYYY-MM-DD'), 565000, 65000, 'Activación Verano', NULL, 2006); -- NULL en pago
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(9006, 1, 2, 250000, 500000, 2001);
 
 
@@ -124,7 +124,7 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(2007, TO_DATE('2026-05-20','YYYY-MM-DD'), TO_TIMESTAMP('18:00','HH24:MI'), TO_TIMESTAMP('23:00','HH24:MI'), '700000023', 523);
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2007, 1, 1, 150000, 2006, NULL); -- Audio
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2007, 2, 1, 650000, 2004, NULL); -- FotografÃ­a
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2007, 2, 1, 650000, 2004, NULL); -- Fotografía
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(8006, TO_DATE('2026-05-15','YYYY-MM-DD'), 904000, 101);
     
@@ -154,7 +154,7 @@ BEGIN
 
 
     -- ==========================================================================
-    -- JULIO 2026: VACACIONES MEDIO AÃ‘O
+    -- JULIO 2026: VACACIONES MEDIO AÑO
     -- ==========================================================================
 
     -- 9. Fiesta Privada (Cliente 11 - Javier Vargas)
@@ -175,7 +175,7 @@ BEGIN
     -- OCTUBRE 2026: PRE-TEMPORADA HALLOWEEN
     -- ==========================================================================
 
-    -- 10. Fiesta Disfraces (Cliente 10 - Sofia GuzmÃ¡n)
+    -- 10. Fiesta Disfraces (Cliente 10 - Sofia Guzmán)
     -- Fecha: 31 Octubre 2026.
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(2010, TO_DATE('2026-10-31','YYYY-MM-DD'), TO_TIMESTAMP('20:00','HH24:MI'), TO_TIMESTAMP('03:00','HH24:MI'), '700000010', 510);
     
@@ -194,7 +194,7 @@ BEGIN
     -- NOVIEMBRE 2026: GRADUACIONES
     -- ==========================================================================
 
-    -- 11. GraduaciÃ³n Colegio BilingÃ¼e (Cliente 48 - Colegio Generico)
+    -- 11. Graduación Colegio Bilingüe (Cliente 48 - Colegio Generico)
     -- Fecha: 20 Noviembre 2026.
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(2011, TO_DATE('2026-11-20','YYYY-MM-DD'), TO_TIMESTAMP('18:00','HH24:MI'), TO_TIMESTAMP('23:00','HH24:MI'), '700000048', 648);
     
@@ -204,23 +204,23 @@ BEGIN
     -- Pago Total Anticipado
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(8010, TO_DATE('2026-11-01','YYYY-MM-DD'), 655400, 101);
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(9011, TO_DATE('2026-11-01','YYYY-MM-DD'), 655400, 75400, 'GraduaciÃ³n Gen 2026', 8010, 2011);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(9011, TO_DATE('2026-11-01','YYYY-MM-DD'), 655400, 75400, 'Graduación Gen 2026', 8010, 2011);
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(9011, 1, 2, 250000, 500000, 2001);
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(9011, 2, 1, 80000, 80000, 2003);
 
 
     -- ==========================================================================
-    -- DICIEMBRE 2026: FIESTAS NAVIDAD Y FIN DE AÃ‘O
+    -- DICIEMBRE 2026: FIESTAS NAVIDAD Y FIN DE AÑO
     -- ==========================================================================
 
-    -- 12. Fiesta Corporativa Fin de AÃ±o (Cliente 43 - LimÃ³n)
+    -- 12. Fiesta Corporativa Fin de Año (Cliente 43 - Limón)
     -- Fecha: 12 Diciembre 2026.
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(2012, TO_DATE('2026-12-12','YYYY-MM-DD'), TO_TIMESTAMP('12:00','HH24:MI'), TO_TIMESTAMP('20:00','HH24:MI'), '700000043', 643);
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2012, 1, 1, 350000, 2002, NULL); -- Pista
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2012, 2, 1, 150000, 2006, NULL); -- Audio
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11012, 'Fiesta CaribeÃ±a 2026', 1005, 2012);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11012, 'Fiesta Caribeña 2026', 1005, 2012);
     
     -- Reserva pagada
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(8011, TO_DATE('2026-12-01','YYYY-MM-DD'), 282500, 101); -- 50% aprox
@@ -229,15 +229,15 @@ BEGIN
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(9012, 1, 1, 250000, 250000, 2002); -- Concepto Abono
 
 
-    -- 13. Cena AÃ±o Nuevo Hotel (Cliente 41 - JacÃ³)
+    -- 13. Cena Año Nuevo Hotel (Cliente 41 - Jacó)
     -- Fecha: 31 Diciembre 2026.
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(2013, TO_DATE('2026-12-31','YYYY-MM-DD'), TO_TIMESTAMP('20:00','HH24:MI'), TO_TIMESTAMP('02:00','HH24:MI'), '700000041', 641);
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2013, 1, 1, 750000, NULL, 60); -- Paquete EnsueÃ±o (Pista+Drone+Humo)
+    FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(2013, 1, 1, 750000, NULL, 60); -- Paquete Ensueño (Pista+Drone+Humo)
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11013, 'Evento Cierre AÃ±o', 1008, 2013);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(11013, 'Evento Cierre Año', 1008, 2013);
     
-    -- Sin pago registrado aÃºn (Evento futuro lejano pendiente)
+    -- Sin pago registrado aún (Evento futuro lejano pendiente)
 
 
     DBMS_OUTPUT.PUT_LINE('>>> CARGA MANUAL 2026 FINALIZADA EXITOSAMENTE <<<');
