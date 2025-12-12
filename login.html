@@ -3,60 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Pink Rentals</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        /* Tus estilos de login se mantienen igual */
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #1a1a1a; }
-        .login-card { background: #2d2d2d; padding: 2rem; border-radius: 15px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid #333; }
-        .form-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #333; color: #fff; margin-bottom: 15px;}
-        .btn-login { width: 100%; background: #ff4081; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        .error-msg { color: #ff5252; font-size: 0.85rem; display: none; margin-top: 10px; }
-    </style>
+    <title>Login & Registro | Pink Rentals</title>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <link rel="stylesheet" href="css/login-modern.css">
 </head>
 <body>
-    <div class="login-card">
-        <h2><span class="pink-text">Pink</span> Rentals</h2>
-        <p style="color:#888; margin-bottom:20px;">Acceso al Sistema</p>
-        
-        <form id="loginForm">
-            <input type="text" id="cedula" class="form-control" required placeholder="Cédula">
-            <input type="password" id="password" class="form-control" required placeholder="Contraseña">
-            <button type="submit" class="btn-login">Ingresar</button>
-            <p id="errorMsg" class="error-msg"></p>
-        </form>
-        <p style="margin-top:20px; font-size:0.8rem;"><a href="index.html" style="color:#aaa;">← Volver al Inicio</a></p>
+
+    <div class="container" id="container">
+        <a href="index.html" class="close-login">
+            <ion-icon name="close-outline"></ion-icon>
+        </a>
+        <div class="form-container sign-up-container">
+            <form id="registerForm">
+                <h2>Crear Cuenta</h2>
+                <span>Usa tu cédula real para el registro</span>
+                
+                <div class="container-input">
+                    <ion-icon name="card-outline"></ion-icon>
+                    <input type="text" id="reg_cedula" placeholder="Cédula" required />
+                </div>
+                <div class="container-input">
+                    <ion-icon name="person-outline"></ion-icon>
+                    <input type="text" id="reg_nombre" placeholder="Nombre" required />
+                </div>
+                <div style="display:flex; gap:10px; width:100%">
+                    <div class="container-input">
+                        <input type="text" id="reg_apellido1" placeholder="1er Apellido" required />
+                    </div>
+                    <div class="container-input">
+                        <input type="text" id="reg_apellido2" placeholder="2do Apellido" required />
+                    </div>
+                </div>
+                
+                <div class="container-input">
+                    <ion-icon name="call-outline"></ion-icon>
+                    <input type="text" id="reg_telefono" placeholder="Teléfono" required />
+                </div>
+                <div class="container-input">
+                    <ion-icon name="lock-closed-outline"></ion-icon>
+                    <input type="password" id="reg_password" placeholder="Contraseña" required />
+                </div>
+
+                <button type="submit">Registrarse</button>
+                <p id="regError" class="error-msg">Error</p>
+            </form>
+        </div>
+
+        <div class="form-container sign-in-container">
+            <form id="loginForm">
+                <h1>Iniciar Sesión</h1>
+                <p>Bienvenido de nuevo a Pink Rentals</p>
+                
+                <div class="container-input">
+                    <ion-icon name="person-circle-outline"></ion-icon>
+                    <input type="text" id="login_cedula" placeholder="Cédula" required />
+                </div>
+                <div class="container-input">
+                    <ion-icon name="lock-closed-outline"></ion-icon>
+                    <input type="password" id="login_password" placeholder="Contraseña" required />
+                </div>
+                
+                <a href="#">¿Olvidaste tu contraseña?</a>
+                <button type="submit">Ingresar</button>
+                <p id="loginError" class="error-msg">Error</p>
+            </form>
+        </div>
+
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>¡Bienvenido!</h1>
+                    <p>Si ya tienes cuenta con nosotros, inicia sesión aquí.</p>
+                    <button class="ghost" id="signIn">Iniciar Sesión</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>¿Nuevo Aquí?</h1>
+                    <p>Regístrate y comienza a reservar los mejores eventos.</p>
+                    <button class="ghost" id="signUp">Registrarse</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        // A. CONTROL DE ANIMACIÓN (Panel Deslizante)
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('container');
+
+        signUpButton.addEventListener('click', () => container.classList.add("right-panel-active"));
+        signInButton.addEventListener('click', () => container.classList.remove("right-panel-active"));
+
+        // B. CONFIGURACIÓN API
+        const API_URL = 'http://localhost:3000/api';
+
+        // 1. LÓGICA DE LOGIN (CORREGIDA Y ROBUSTA)
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    console.log("1. Botón presionado, intentando login...");
+
+    // CORRECCIÓN 1: Usar los IDs correctos definidos en el HTML
+    const cedula = document.getElementById('login_cedula').value;
+    const password = document.getElementById('login_password').value;
+    
+    // CORRECCIÓN 2: El ID del mensaje de error en HTML es 'loginError'
+    const errorMsg = document.getElementById('loginError');
+    
+    // CORRECCIÓN 3: El botón no tiene la clase .btn-login, lo buscamos por tipo
+    const btnSubmit = e.target.querySelector('button[type="submit"]');
+
+    // Limpiar UI
+    errorMsg.style.display = 'none';
+    btnSubmit.disabled = true;
+    const textoOriginal = btnSubmit.innerText;
+    btnSubmit.innerText = "Verificando...";
+
+    try {
+        console.log("2. Enviando datos:", { cedula }); 
+        
+        const res = await fetch('http://localhost:3000/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cedula, password })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            // Guardar usuario
+            localStorage.setItem('pinkUser', JSON.stringify(data.user));
+            
+            // Redirección según rol
+            if (data.user.rol === 10 || data.user.rol === 20) {
+                window.location.href = 'index.html'; // O panel admin si tienes uno específico
+            } else {
+                window.location.href = 'index.html';
+            }
+
+        } else {
+            throw new Error(data.message || 'Credenciales inválidas');
+        }
+
+    } catch (err) {
+        console.error("ERROR:", err);
+        errorMsg.style.display = 'block';
+        errorMsg.textContent = err.message;
+    } finally {
+        // Reactivar botón siempre
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = textoOriginal;
+    }
+});
+
+        // 2. LÓGICA DE REGISTRO (CON DOBLE TRANSACCIÓN)
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const cedula = document.getElementById('cedula').value;
-            const password = document.getElementById('password').value;
-            const errorMsg = document.getElementById('errorMsg');
+            const errorSpan = document.getElementById('regError');
+            errorSpan.style.display = 'none'; // Limpiar error previo
+            
+            const registroData = {
+                cedula: document.getElementById('reg_cedula').value,
+                nombre: document.getElementById('reg_nombre').value,
+                apellido1: document.getElementById('reg_apellido1').value,
+                apellido2: document.getElementById('reg_apellido2').value,
+                telefono: document.getElementById('reg_telefono').value,
+                password: document.getElementById('reg_password').value
+            };
 
             try {
-                const res = await fetch('http://localhost:3000/api/login', {
+                const response = await fetch(`${API_URL}/clientes`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cedula, password })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(registroData)
                 });
-                const data = await res.json();
 
-                if (data.success) {
-                    localStorage.setItem('pinkUser', JSON.stringify(data.user));
-                    // CAMBIO IMPORTANTE: Siempre redirigimos a index.html
-                    // index.html y main.js se encargarán de mostrar la interfaz correcta
-                    window.location.href = 'index.html';
-                } else {
-                    errorMsg.style.display = 'block';
-                    errorMsg.textContent = data.message || 'Credenciales inválidas';
-                }
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error || "Error al registrar");
+
+                alert('¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.');
+                // Volver automáticamente al panel de login
+                container.classList.remove("right-panel-active"); 
+                document.getElementById('registerForm').reset();
+
             } catch (err) {
                 console.error(err);
-                errorMsg.style.display = 'block';
-                errorMsg.textContent = 'Error de conexión';
+                errorSpan.textContent = err.message || "Error de conexión";
+                errorSpan.style.display = 'block';
             }
         });
     </script>

@@ -1,38 +1,95 @@
-require('dotenv').config();
-const express = require('express');
-const oracledb = require('oracledb');
-const cors = require('cors');
+// ====================================================================
+// PINK RENTALS - SERVER.JS (MODO ESTRICTO: SOLO STORED PROCEDURES)
+// ====================================================================
 
+// 1. IMPORTACIONES
+// ----------------
+require('dotenv').config(); // Para variables de entorno (opcional)
+const express = require('express'); // Framework del servidor
+const oracledb = require('oracledb'); // Driver de Oracle
+const cors = require('cors'); // Permite que tu Frontend (HTML/JS) se comunique con este Backend
+
+// 2. CONFIGURACIÓN INICIAL
+// ------------------------
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(cors()); // Habilitar CORS para todas las rutas
+app.use(express.json()); // Permitir que el servidor entienda JSON en el cuerpo de las peticiones
 
-oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
-oracledb.autoCommit = true;
+// Configuración global de Oracle
+oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT; // Recibir datos como Objetos { id: 1 } en vez de Arrays [1]
 
+// Datos de conexión (Asegúrate que coincidan con tu máquina virtual/local)
 const dbConfig = {
     user: "G2_SC508_VT_PROYECTO",
     password: "1234",
     connectString: "localhost:1521/xe"
 };
 
-// ==========================================
-// 1. AUTENTICACIÓN
-// ==========================================
+// ====================================================================
+// 3. FUNCIÓN HELPER (AYUDA) - PARA LEER DATOS (GET)
+// ====================================================================
+// Esta función evita repetir código. Sirve para ejecutar cualquier SP que devuelva un cursor (lista).
+async function executeCursorSP(spName) {
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        
+        // Ejecutamos el SP indicando que esperamos un CURSOR de salida
+        const result = await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.${spName}(:cursor); END;`,
+            { 
+                cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT } // Parámetro de salida
+            }
+        );
+
+        // Extraemos los datos del cursor
+        const resultSet = result.outBinds.cursor;
+        const rows = await resultSet.getRows();
+        await resultSet.close(); // IMPORTANTE: Cerrar el cursor para liberar memoria
+        
+        // Convertimos las llaves a minúsculas (Oracle devuelve MAYÚSCULAS por defecto)
+        // Esto facilita el uso en el Frontend (ej. usar 'nombre' en vez de 'NOMBRE')
+        return rows.map(row => {
+            const obj = {};
+            Object.keys(row).forEach(key => obj[key.toLowerCase()] = row[key]);
+            return obj;
+        });
+
+    } catch (err) {
+        throw new Error(err.message);
+    } finally {
+        if (connection) await connection.close(); // Siempre cerrar la conexión
+    }
+}
+
+// ====================================================================
+// 4. AUTENTICACIÓN (LOGIN)
+// ====================================================================
 app.post('/api/login', async (req, res) => {
     const { cedula, password } = req.body;
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
+        
+        // Llamada al SP de autenticación que agregamos en la Parte 1
         const result = await connection.execute(
-            `SELECT USUARIOS_ID_CEDULA_PK, NOMBRE, PRIMER_APELLIDO, ROLES_ID_ROL_PK 
-             FROM G2_SC508_VT_PROYECTO.FIDE_USUARIOS_TB 
-             WHERE USUARIOS_ID_CEDULA_PK = :ced AND CONTRASENA = :pass AND ESTADOS_ID_ESTADO_PK = 1`,
-            [cedula, password]
+            `BEGIN 
+                G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_AUTENTICACION_SP(:c, :p, :cursor); 
+            END;`,
+            {
+                c: cedula,
+                p: password,
+                cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT }
+            }
         );
 
-        if (result.rows.length > 0) {
-            const user = result.rows[0];
+        const resultSet = result.outBinds.cursor;
+        const rows = await resultSet.getRows();
+        await resultSet.close();
+
+        if (rows.length > 0) {
+            const user = rows[0];
+            // Enviamos al frontend solo los datos necesarios
             res.json({ 
                 success: true, 
                 user: {
@@ -42,52 +99,103 @@ app.post('/api/login', async (req, res) => {
                 }
             });
         } else {
-            res.status(401).json({ success: false, message: 'Credenciales inválidas' });
+            res.status(401).json({ success: false, message: 'Credenciales inválidas o usuario inactivo' });
         }
     } catch (err) {
+        console.error("Error Login:", err);
         res.status(500).json({ error: err.message });
     } finally {
         if (connection) await connection.close();
     }
 });
 
-// ==========================================
-// 2. CHECKOUT (TRANSACCIÓN)
-// ==========================================
+// ====================================================================
+// 5. REGISTRO DE CLIENTES (TRANSACCIÓN DOBLE)
+// ====================================================================
+// Esta ruta es crítica: Crea el Usuario Y el Cliente al mismo tiempo.
+app.post('/api/clientes', async (req, res) => {
+    // Desestructuramos todos los datos que vienen del formulario
+    const { cedula, nombre, apellido1, apellido2, telefono, password } = req.body;
+    let connection;
+    
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        
+        // PASO A: Crear el Usuario (Rol 30 = Cliente)
+        // Usamos autoCommit: false para que NO se guarde todavía, por si falla el paso B.
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP(:c, :n, :a1, :a2, :p, 30); END;`,
+            { c: cedula, n: nombre, a1: apellido1, a2: apellido2, p: password },
+            { autoCommit: false } 
+        );
+
+        // PASO B: Crear el registro en la tabla Clientes (vinculado por cédula)
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP(:c, :t); END;`,
+            { c: cedula, t: telefono },
+            { autoCommit: false }
+        );
+
+        // Si ambos pasos funcionaron, "confirmamos" los cambios permanentemente
+        await connection.commit();
+        res.status(201).json({ success: true, message: 'Cliente registrado correctamente' });
+
+    } catch (err) {
+        // Si algo falló, "deshacemos" todo (Rollback) para no dejar datos corruptos
+        if (connection) {
+            try { await connection.rollback(); } catch (e) { console.error(e); }
+        }
+        console.error("Error en registro:", err);
+        res.status(500).json({ success: false, error: err.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+// ====================================================================
+// 6. CHECKOUT / RESERVA (TRANSACCIÓN COMPLEJA)
+// ====================================================================
 app.post('/api/checkout', async (req, res) => {
     const { clienteId, fecha, horaInicio, horaFin, direccionId, items, total } = req.body;
-    
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
         
+        // Generamos IDs aleatorios (en un sistema real usarías secuencias de Oracle)
         const idReserva = Math.floor(Math.random() * 1000000);
         const idFactura = Math.floor(Math.random() * 1000000);
+        
+        // Formateo de fechas para Oracle
         const tsInicio = new Date(`${fecha}T${horaInicio}:00`);
         const tsFin = new Date(`${fecha}T${horaFin}:00`);
 
+        // 1. Insertar la Reserva
         await connection.execute(
             `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(:id, :f, :i, :fn, :c, :d); END;`,
             { id: idReserva, f: new Date(fecha), i: tsInicio, fn: tsFin, c: clienteId, d: direccionId },
             { autoCommit: false }
         );
 
-        let lineaReserva = 1;
         let lineaFactura = 1;
+        let lineaReserva = 1;
 
+        // 2. Recorrer el carrito de compras (items)
         for (const item of items) {
             if (item.tipo === 'servicio') {
+                // Insertar detalle en la reserva
                 await connection.execute(
                     `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(:rid, :ln, :cant, :prec, :sid, :pid); END;`,
                     { rid: idReserva, ln: lineaReserva++, cant: 1, prec: item.precio, sid: item.id, pid: null },
                     { autoCommit: false }
                 );
+                // Insertar línea en la factura (detalle de cobro)
                 await connection.execute(
                     `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(:fid, :ln, :cant, :prec, :sub, :sid); END;`,
                     { fid: idFactura, ln: lineaFactura++, cant: 1, prec: item.precio, sub: item.precio, sid: item.id },
                     { autoCommit: false }
                 );
             } else if (item.tipo === 'producto') {
+                 // Si es un producto (ej. Props), se guarda en Asignaciones
                  const idAsignacion = Math.floor(Math.random() * 1000000);
                  await connection.execute(
                     `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(:id, :n, :pid, :rid); END;`,
@@ -97,15 +205,16 @@ app.post('/api/checkout', async (req, res) => {
             }
         }
 
+        // 3. Crear la Factura Global
         const impuesto = total * 0.13;
         const granTotal = total + impuesto;
-
         await connection.execute(
             `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(:fid, :f, :m, :imp, :det, :pid, :rid); END;`,
-            { fid: idFactura, f: new Date(), m: granTotal, imp: impuesto, det: 'Compra Web', pid: 1, rid: idReserva },
+            { fid: idFactura, f: new Date(), m: granTotal, imp: impuesto, det: 'Compra Web', pid: 1, rid: idReserva }, // pid 1 = estado pendiente/pagado (ajustar segun tu lógica)
             { autoCommit: false }
         );
 
+        // 4. Todo salió bien: COMMIT
         await connection.commit();
         res.json({ success: true, reservaId: idReserva });
 
@@ -117,9 +226,10 @@ app.post('/api/checkout', async (req, res) => {
     }
 });
 
-// ==========================================
-// 3. LECTURAS GENÉRICAS (GET)
-// ==========================================
+// ====================================================================
+// 7. LECTURAS MASIVAS (GET)
+// ====================================================================
+// Mapeamos el nombre de la ruta URL -> Nombre del SP en Oracle
 const TABLE_ENDPOINTS = {
     'estados': 'FIDE_ESTADOS_LISTAR_SP',
     'roles': 'FIDE_ROLES_LISTAR_SP',
@@ -139,268 +249,144 @@ const TABLE_ENDPOINTS = {
     'paquetes': 'FIDE_PAQUETE_LISTAR_SP',
     'usuarios': 'FIDE_USUARIOS_LISTAR_SP',
     'detalles-factura': 'FIDE_DETALLE_FACT_LISTAR_SP',
-    'asignaciones': 'FIDE_ASIGNACION_LISTAR_SP', // ¡AGREGADO!
-    'paquetes-servicio': 'FIDE_PAQUETES_POR_SERV_LISTAR_SP' // ¡AGREGADO!
+    'asignaciones': 'FIDE_ASIGNACION_LISTAR_SP', 
+    'paquetes-servicio': 'FIDE_PAQUETES_POR_SERV_LISTAR_SP'
 };
 
+// Generamos automáticamente las rutas GET para todo lo anterior
 Object.entries(TABLE_ENDPOINTS).forEach(([route, spName]) => {
     app.get(`/api/${route}`, async (req, res) => {
-        let connection;
         try {
-            connection = await oracledb.getConnection(dbConfig);
-            const result = await connection.execute(
-                `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.${spName}(:cursor); END;`,
-                { cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT } }
-            );
-            const resultSet = result.outBinds.cursor;
-            const rows = await resultSet.getRows();
-            await resultSet.close();
-            
-            const data = rows.map(row => {
-                const obj = {};
-                Object.keys(row).forEach(key => obj[key.toLowerCase()] = row[key]);
-                return obj;
-            });
+            // Usamos la función helper creada al inicio
+            const data = await executeCursorSP(spName);
             res.json(data);
         } catch (err) {
             res.status(500).send(err.message);
-        } finally {
-            if (connection) await connection.close();
         }
     });
 });
 
-// ==========================================
-// 4. CRUDS ESPECÍFICOS (POST/PUT/DELETE)
-// ==========================================
-// (Mantener el resto de tus endpoints de POST/PUT/DELETE exactamente como los tenías.
-//  No los repito aquí para no hacer el archivo kilométrico, pero NO LOS BORRES).
-//  ... Pega aquí debajo los endpoints de clientes, usuarios, paquetes, productos, etc ...
+// ====================================================================
+// 8. CRUDs ESPECÍFICOS (PUT / DELETE / POSTs Adicionales)
+// ====================================================================
 
-// --- CLIENTES ---
-app.post('/api/clientes', async (req, res) => {
-    const { cedula, nombre, apellido1, apellido2, telefono, password } = req.body;
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP(:c, :n, :a1, :a2, :p, 30); END;`,
-            { c: cedula, n: nombre, a1: apellido1, a2: apellido2, p: password });
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_INSERTAR_SP(:c, :t); END;`,
-            { c: cedula, t: telefono });
-        res.status(201).json({ message: 'OK' });
-    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
-});
+// --- GESTIÓN DE CLIENTES (Actualizar y Eliminar) ---
 app.put('/api/clientes/:cedula', async (req, res) => {
     const { nombre, apellido1, apellido2, telefono, password } = req.body;
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        let passFinal = password;
-        if (!password) {
-            const r = await connection.execute(`SELECT contrasena FROM G2_SC508_VT_PROYECTO.FIDE_USUARIOS_TB WHERE USUARIOS_ID_CEDULA_PK=:c`, [req.params.cedula]);
-            if(r.rows.length > 0) passFinal = r.rows[0].CONTRASENA;
+        
+        // 1. Obtenemos la contraseña vieja usando el SP (NO SELECT)
+        // Esto es necesario por si el usuario dejó el campo "password" vacío en el form
+        const result = await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_OBTENER_SP(:c, :cursor); END;`,
+            { c: req.params.cedula, cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT } }
+        );
+        const resultSet = result.outBinds.cursor;
+        const rows = await resultSet.getRows();
+        await resultSet.close();
+
+        let finalPass = password;
+        if (!password && rows.length > 0) {
+            finalPass = rows[0].CONTRASENA; // Mantenemos la anterior
         }
+
+        // 2. Actualizamos Usuario
         await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_ACTUALIZAR_SP(:c, :n, :a1, :a2, :p, 1, 30); END;`,
-            { c: req.params.cedula, n: nombre, a1: apellido1, a2: apellido2, p: passFinal });
+            { c: req.params.cedula, n: nombre, a1: apellido1, a2: apellido2, p: finalPass }, { autoCommit: false });
+            
+        // 3. Actualizamos Cliente (teléfono)
         await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_ACTUALIZAR_SP(:c, :t); END;`,
-            { c: req.params.cedula, t: telefono });
+            { c: req.params.cedula, t: telefono }, { autoCommit: false });
+
+        await connection.commit();
         res.json({ message: 'OK' });
-    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
+
+    } catch (err) {
+        if (connection) await connection.rollback();
+        res.status(500).json({ error: err.message });
+    } finally { 
+        if (connection) await connection.close(); 
+    }
 });
+
 app.delete('/api/clientes/:cedula', async (req, res) => {
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_ELIMINAR_SP(:c); END;`, { c: req.params.cedula });
+        // Borrado lógico via SP
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CLIENTES_ELIMINAR_SP(:c); END;`, 
+            { c: req.params.cedula }, 
+            { autoCommit: true }
+        );
         res.json({ message: 'OK' });
     } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
 });
 
-// --- USUARIOS ---
+// --- GESTIÓN DE USUARIOS (ADMIN) ---
 app.post('/api/usuarios', async (req, res) => {
     const { cedula, nombre, apellido1, apellido2, password, rol } = req.body;
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP(:c, :n, :a1, :a2, :p, :r); END;`,
-            { c: cedula, n: nombre, a1: apellido1, a2: apellido2, p: password, r: rol });
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_INSERTAR_SP(:c, :n, :a1, :a2, :p, :r); END;`,
+            { c: cedula, n: nombre, a1: apellido1, a2: apellido2, p: password, r: rol }, 
+            { autoCommit: true }
+        );
         res.status(201).json({ message: 'OK' });
     } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
 });
-app.put('/api/usuarios/:cedula', async (req, res) => {
-    const { nombre, apellido1, apellido2, password, rol, estado } = req.body;
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        let passFinal = password;
-        if (!password) {
-            const r = await connection.execute(`SELECT contrasena FROM G2_SC508_VT_PROYECTO.FIDE_USUARIOS_TB WHERE USUARIOS_ID_CEDULA_PK=:c`, [req.params.cedula]);
-            if(r.rows.length > 0) passFinal = r.rows[0].CONTRASENA;
-        }
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_ACTUALIZAR_SP(:c, :n, :a1, :a2, :p, :e, :r); END;`,
-            { c: req.params.cedula, n: nombre, a1: apellido1, a2: apellido2, p: passFinal, e: estado, r: rol });
-        res.json({ message: 'OK' });
-    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
-});
-app.delete('/api/usuarios/:cedula', async (req, res) => {
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_USUARIOS_ELIMINAR_SP(:c); END;`, { c: req.params.cedula });
-        res.json({ message: 'OK' });
-    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
-});
 
-// --- PAQUETES ---
+// --- GESTIÓN DE PRODUCTOS / PAQUETES / SERVICIOS (Ejemplos) ---
+// Se sigue el mismo patrón: Conexión -> Ejecutar SP -> Responder.
+
 app.post('/api/paquetes', async (req, res) => {
     const { nombre, descripcion, precio } = req.body;
-    const id = Math.floor(Math.random() * 100000);
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PAQUETE_INSERTAR_SP(:id, :n, :d, :p); END;`,
-            { id: id, n: nombre, d: descripcion, p: precio });
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PAQUETE_INSERTAR_SP(:id, :n, :d, :p); END;`,
+            { id: Math.floor(Math.random() * 100000), n: nombre, d: descripcion, p: precio }, 
+            { autoCommit: true }
+        );
         res.status(201).json({ message: 'OK' });
     } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
 });
-app.put('/api/paquetes/:id', async (req, res) => {
-    const { nombre, descripcion, precio, estado } = req.body;
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PAQUETE_ACTUALIZAR_SP(:id, :n, :d, :p, :e); END;`,
-            { id: req.params.id, n: nombre, d: descripcion, p: precio, e: estado });
-        res.json({ message: 'OK' });
-    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
-});
-app.delete('/api/paquetes/:id', async (req, res) => {
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PAQUETE_ELIMINAR_SP(:id); END;`, { id: req.params.id });
-        res.json({ message: 'OK' });
-    } catch (err) { res.status(500).json({ error: err.message }); } finally { if (connection) await connection.close(); }
-});
 
-// --- UBICACIONES ---
-app.post('/api/provincias', async (req, res) => {
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        const id = Math.floor(Math.random() * 10000);
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PROVINCIA_INSERTAR_SP(:id, :n); END;`, { id, n: req.body.nombre });
-        res.json({ message: 'OK' });
-    } catch (err) { res.status(500).json({ error: err.message }); } finally { if(connection) await connection.close(); }
-});
-app.delete('/api/provincias/:id', async (req, res) => {
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PROVINCIA_ELIMINAR_SP(:id); END;`, {id:req.params.id});
-        res.json({ message: 'OK' });
-    } catch (err) { res.status(500).json({ error: err.message }); } finally { if(connection) await connection.close(); }
-});
-app.post('/api/cantones', async (req, res) => {
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        const id = Math.floor(Math.random() * 10000);
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CANTON_INSERTAR_SP(:id, :p, :n); END;`, { id, p: req.body.provinciaId, n: req.body.nombre });
-        res.json({ message: 'OK' });
-    } catch (err) { res.status(500).json({ error: err.message }); } finally { if(connection) await connection.close(); }
-});
-app.delete('/api/cantones/:id', async (req, res) => {
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_CANTON_ELIMINAR_SP(:id); END;`, {id:req.params.id});
-        res.json({ message: 'OK' });
-    } catch (err) { res.status(500).json({ error: err.message }); } finally { if(connection) await connection.close(); }
-});
-app.post('/api/distritos', async (req, res) => {
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        const id = Math.floor(Math.random() * 10000);
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_DISTRITO_INSERTAR_SP(:id, :c, :n); END;`, { id, c: req.body.cantonId, n: req.body.nombre });
-        res.json({ message: 'OK' });
-    } catch (err) { res.status(500).json({ error: err.message }); } finally { if(connection) await connection.close(); }
-});
-app.delete('/api/distritos/:id', async (req, res) => {
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_DISTRITO_ELIMINAR_SP(:id); END;`, {id:req.params.id});
-        res.json({ message: 'OK' });
-    } catch (err) { res.status(500).json({ error: err.message }); } finally { if(connection) await connection.close(); }
-});
-
-// --- PRODUCTOS / SERVICIOS / RESERVAS (RESTO) ---
 app.post('/api/productos', async (req, res) => {
     const { nombre, descripcion, precio, cantidad, categoriaId } = req.body;
-    let connection; try { connection = await oracledb.getConnection(dbConfig);
-    await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(:id, :n, :d, :p, :c, :cat); END;`, 
-    { id: Math.floor(Math.random()*100000), n: nombre, d: descripcion, p: precio, c: cantidad, cat: categoriaId });
-    res.status(201).json({message: 'OK'}); } catch(e){res.status(500).json({error:e.message})} finally {if(connection) await connection.close()}
+    let connection; 
+    try { 
+        connection = await oracledb.getConnection(dbConfig);
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_INSERTAR_SP(:id, :n, :d, :p, :c, :cat); END;`, 
+            { id: Math.floor(Math.random()*100000), n: nombre, d: descripcion, p: precio, c: cantidad, cat: categoriaId },
+            { autoCommit: true }
+        );
+        res.status(201).json({message: 'OK'}); 
+    } catch(e){ res.status(500).json({error:e.message}) } finally { if(connection) await connection.close() }
 });
-app.put('/api/productos/:id', async (req, res) => {
-    const { nombre, descripcion, precio, cantidad, categoriaId, estado } = req.body;
-    let connection; try { connection = await oracledb.getConnection(dbConfig);
-    await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_ACTUALIZAR_SP(:id, :n, :d, :p, :c, :cat, :e); END;`, 
-    { id: req.params.id, n: nombre, d: descripcion, p: precio, c: cantidad, cat: categoriaId, e: estado });
-    res.json({message: 'OK'}); } catch(e){res.status(500).json({error:e.message})} finally {if(connection) await connection.close()}
-});
+
 app.delete('/api/productos/:id', async (req, res) => {
-    let connection; try { connection = await oracledb.getConnection(dbConfig);
-    await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_ELIMINAR_SP(:id); END;`, { id: req.params.id });
-    res.json({message: 'OK'}); } catch(e){res.status(500).json({error:e.message})} finally {if(connection) await connection.close()}
+    let connection; 
+    try { 
+        connection = await oracledb.getConnection(dbConfig);
+        await connection.execute(
+            `BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_PRODUCTOS_ELIMINAR_SP(:id); END;`, 
+            { id: req.params.id },
+            { autoCommit: true }
+        );
+        res.json({message: 'OK'}); 
+    } catch(e){ res.status(500).json({error:e.message}) } finally { if(connection) await connection.close() }
 });
 
-app.post('/api/servicios', async (req, res) => {
-    const { nombre, descripcion, precio, categoriaId } = req.body;
-    let connection; try { connection = await oracledb.getConnection(dbConfig);
-    await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_INSERTAR_SP(:id, :n, :d, :p, :c); END;`, 
-    { id: Math.floor(Math.random()*100000), n: nombre, d: descripcion, p: precio, c: categoriaId });
-    res.status(201).json({message: 'OK'}); } catch(e){res.status(500).json({error:e.message})} finally {if(connection) await connection.close()}
-});
-app.put('/api/servicios/:id', async (req, res) => {
-    const { nombre, descripcion, precio, categoriaId, estado } = req.body;
-    let connection; try { connection = await oracledb.getConnection(dbConfig);
-    await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_ACTUALIZAR_SP(:id, :n, :d, :p, :c, :e); END;`, 
-    { id: req.params.id, n: nombre, d: descripcion, p: precio, c: categoriaId, e: estado });
-    res.json({message: 'OK'}); } catch(e){res.status(500).json({error:e.message})} finally {if(connection) await connection.close()}
-});
-app.delete('/api/servicios/:id', async (req, res) => {
-    let connection; try { connection = await oracledb.getConnection(dbConfig);
-    await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_SERVICIOS_ELIMINAR_SP(:id); END;`, { id: req.params.id });
-    res.json({message: 'OK'}); } catch(e){res.status(500).json({error:e.message})} finally {if(connection) await connection.close()}
-});
-
-app.post('/api/reservaciones', async (req, res) => {
-    const { fecha, horaInicio, horaFin, clienteId, direccionId } = req.body;
-    let connection; try { connection = await oracledb.getConnection(dbConfig);
-    await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(:id, :f, :i, :fn, :c, :d); END;`, 
-    { id: Math.floor(Math.random()*100000), f: new Date(fecha), i: new Date(`${fecha}T${horaInicio}:00`), fn: new Date(`${fecha}T${horaFin}:00`), c: clienteId, d: direccionId });
-    res.status(201).json({message: 'OK'}); } catch(e){res.status(500).json({error:e.message})} finally {if(connection) await connection.close()}
-});
-app.put('/api/reservaciones/:id', async (req, res) => { 
-    const { fecha, horaInicio, horaFin, clienteId, direccionId, estado } = req.body;
-    let connection; try { connection = await oracledb.getConnection(dbConfig);
-    await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_ACTUALIZAR_SP(:id, :f, :i, :fn, :e, :c, :d); END;`, 
-    { id: req.params.id, f: new Date(fecha), i: new Date(`${fecha}T${horaInicio}:00`), fn: new Date(`${fecha}T${horaFin}:00`), e: estado, c: clienteId, d: direccionId });
-    res.json({message: 'OK'}); } catch(e){res.status(500).json({error:e.message})} finally {if(connection) await connection.close()}
-});
-app.delete('/api/reservaciones/:id', async (req, res) => {
-    let connection; try { connection = await oracledb.getConnection(dbConfig);
-    await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_ELIMINAR_SP(:id); END;`, { id: req.params.id });
-    res.json({message: 'OK'}); } catch(e){res.status(500).json({error:e.message})} finally {if(connection) await connection.close()}
-});
-app.delete('/api/facturas/:id', async (req, res) => {
-    let connection; try { connection = await oracledb.getConnection(dbConfig);
-    await connection.execute(`BEGIN G2_SC508_VT_PROYECTO.FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_ELIMINAR_SP(:id); END;`, { id: req.params.id });
-    res.json({message: 'OK'}); } catch(e){res.status(500).json({error:e.message})} finally {if(connection) await connection.close()}
-});
-
+// ====================================================================
+// 9. INICIO DEL SERVIDOR
+// ====================================================================
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`✅ Servidor Pink Rentals corriendo en http://localhost:${PORT}`);
