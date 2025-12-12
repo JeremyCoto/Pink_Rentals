@@ -4,7 +4,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('>>> INICIO DE SEGUNDA TANDA DE CARGA TRANSACCIONAL (EVENTOS 17-28) <<<');
 
     -- ==========================================================================
-    -- EVENTO 17: Boda de Destino en Liberia (Cliente 18 - Valeria FernÃ¡ndez)
+    -- EVENTO 17: Boda de Destino en Liberia (Cliente 18 - Valeria Fernández)
     -- ==========================================================================
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(922, TO_DATE('2024-08-10','YYYY-MM-DD'), TO_TIMESTAMP('14:00','HH24:MI'), TO_TIMESTAMP('23:00','HH24:MI'), '700000018', 518);
     
@@ -15,7 +15,7 @@ BEGIN
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(7021, TO_DATE('2024-08-05','YYYY-MM-DD'), 678000, 101); 
     
-    -- AQUÃ OCURRÃA EL ERROR ANTES:
+    -- AQUÍ OCURRÍA EL ERROR ANTES:
     FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6021, TO_DATE('2024-08-05','YYYY-MM-DD'), 678000, 78000, 'Boda Valeria y Juan', 7021, 922);
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(6021, 1, 1, 600000, 600000, 2002);
 
@@ -36,17 +36,17 @@ BEGIN
 
 
     -- ==========================================================================
-    -- EVENTO 19: GraduaciÃ³n Kinder (Cliente 12 - Elena Rojas)
+    -- EVENTO 19: Graduación Kinder (Cliente 12 - Elena Rojas)
     -- ==========================================================================
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(924, TO_DATE('2024-10-30','YYYY-MM-DD'), TO_TIMESTAMP('09:00','HH24:MI'), TO_TIMESTAMP('12:00','HH24:MI'), '700000012', 512);
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(924, 1, 1, 650000, 2004, NULL); 
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(10025, 'CÃ¡mara Sony A7IV - FotÃ³grafo 2', 1006, 924);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(10025, 'Cámara Sony A7IV - Fotógrafo 2', 1006, 924);
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(7023, TO_DATE('2024-10-25','YYYY-MM-DD'), 734500, 101);
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6023, TO_DATE('2024-10-25','YYYY-MM-DD'), 734500, 84500, 'Fotos GraduaciÃ³n Kinder', 7023, 924);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6023, TO_DATE('2024-10-25','YYYY-MM-DD'), 734500, 84500, 'Fotos Graduación Kinder', 7023, 924);
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(6023, 1, 1, 650000, 650000, 2004);
 
 
@@ -75,16 +75,16 @@ BEGIN
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(926, 1, 1, 80000, 2003, NULL); 
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(10028, 'Letras PequeÃ±as JardÃ­n', 1001, 926);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(10028, 'Letras Pequeñas Jardín', 1001, 926);
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(7025, SYSDATE, 90400, 100); 
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6025, SYSDATE, 90400, 10400, 'Propuesta San Valentin', 7025, 926);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6025, SYSDATE, 90400, 10400, 'Propuesta San Valentín', 7025, 926);
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(6025, 1, 1, 80000, 80000, 2003);
 
 
     -- ==========================================================================
-    -- EVENTO 22: CancelaciÃ³n de Ãšltimo Momento (Cliente 27 - Victor Ramirez)
+    -- EVENTO 22: Cancelación de Último Momento (Cliente 27 - Victor Ramirez)
     -- ==========================================================================
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(927, TO_DATE('2025-01-20','YYYY-MM-DD'), TO_TIMESTAMP('10:00','HH24:MI'), TO_TIMESTAMP('14:00','HH24:MI'), '700000027', 527);
     
@@ -94,13 +94,13 @@ BEGIN
 
 
     -- ==========================================================================
-    -- EVENTO 23: Aniversario Bodas Oro (Cliente 15 - AndrÃ©s Madrigal)
+    -- EVENTO 23: Aniversario Bodas Oro (Cliente 15 - Andrés Madrigal)
     -- ==========================================================================
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(928, TO_DATE('2025-03-01','YYYY-MM-DD'), TO_TIMESTAMP('12:00','HH24:MI'), TO_TIMESTAMP('18:00','HH24:MI'), '700000015', 515);
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_RESERVACION_INSERTAR_SP(928, 1, 1, 650000, 2004, NULL); 
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(10029, 'FotÃ³grafo Senior', 1006, 928);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_ASIGNACION_INSERTAR_SP(10029, 'Fotógrafo Senior', 1006, 928);
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(7026, SYSDATE, 200000, 101); 
     
@@ -109,7 +109,7 @@ BEGIN
 
 
     -- ==========================================================================
-    -- EVENTO 24: Fiesta de 15 AÃ±os (Cliente 34 - Raquel Badilla)
+    -- EVENTO 24: Fiesta de 15 Años (Cliente 34 - Raquel Badilla)
     -- ==========================================================================
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(929, TO_DATE('2024-09-15','YYYY-MM-DD'), TO_TIMESTAMP('18:00','HH24:MI'), TO_TIMESTAMP('23:00','HH24:MI'), '700000034', 534);
     
@@ -121,13 +121,13 @@ BEGIN
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(7027, TO_DATE('2024-09-10','YYYY-MM-DD'), 372900, 102); 
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6027, TO_DATE('2024-09-10','YYYY-MM-DD'), 372900, 42900, 'XV AÃ±os Raquel', 7027, 929);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6027, TO_DATE('2024-09-10','YYYY-MM-DD'), 372900, 42900, 'XV Años Raquel', 7027, 929);
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(6027, 1, 1, 250000, 250000, 2001);
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(6027, 2, 1, 80000, 80000, 2003);
 
 
     -- ==========================================================================
-    -- EVENTO 25: SesiÃ³n Fotos Playa (Cliente 32 - Isabel Cordoba)
+    -- EVENTO 25: Sesión Fotos Playa (Cliente 32 - Isabel Cordoba)
     -- ==========================================================================
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(930, TO_DATE('2024-12-20','YYYY-MM-DD'), TO_TIMESTAMP('15:00','HH24:MI'), TO_TIMESTAMP('18:00','HH24:MI'), '700000032', 532);
     
@@ -137,12 +137,12 @@ BEGIN
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(7028, TO_DATE('2024-12-18','YYYY-MM-DD'), 367250, 101);
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6028, TO_DATE('2024-12-18','YYYY-MM-DD'), 367250, 42250, 'SesiÃ³n Atardecer', 7028, 930);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6028, TO_DATE('2024-12-18','YYYY-MM-DD'), 367250, 42250, 'Sesión Atardecer', 7028, 930);
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(6028, 1, 0.5, 650000, 325000, 2004);
 
 
     -- ==========================================================================
-    -- EVENTO 26: Evento BenÃ©fico (Cliente 36 - Xinia Loria)
+    -- EVENTO 26: Evento Benéfico (Cliente 36 - Xinia Loria)
     -- ==========================================================================
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(931, TO_DATE('2024-11-25','YYYY-MM-DD'), TO_TIMESTAMP('14:00','HH24:MI'), TO_TIMESTAMP('18:00','HH24:MI'), '700000036', 536);
     
@@ -152,12 +152,12 @@ BEGIN
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(7029, TO_DATE('2024-11-20','YYYY-MM-DD'), 395500, 101);
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6029, TO_DATE('2024-11-20','YYYY-MM-DD'), 395500, 45500, 'Evento RecaudaciÃ³n', 7029, 931);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6029, TO_DATE('2024-11-20','YYYY-MM-DD'), 395500, 45500, 'Evento Recaudación', 7029, 931);
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(6029, 1, 1, 350000, 350000, 2002);
 
 
     -- ==========================================================================
-    -- EVENTO 27: Baby Shower (Cliente 28 - Paola Chacon)
+    -- EVENTO 27: Baby Shower (Cliente 28 - Paola Chacón)
     -- ==========================================================================
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(932, TO_DATE('2025-01-25','YYYY-MM-DD'), TO_TIMESTAMP('15:00','HH24:MI'), TO_TIMESTAMP('19:00','HH24:MI'), '700000028', 528);
     
@@ -172,7 +172,7 @@ BEGIN
 
 
     -- ==========================================================================
-    -- EVENTO 28: CumpleaÃ±os Infantil (Cliente 39 - Rene Valverde)
+    -- EVENTO 28: Cumpleaños Infantil (Cliente 39 - Rene Valverde)
     -- ==========================================================================
     FIDE_PROYECTO_FINAL_PKG.FIDE_RESERVACIONES_INSERTAR_SP(933, TO_DATE('2025-02-10','YYYY-MM-DD'), TO_TIMESTAMP('14:00','HH24:MI'), TO_TIMESTAMP('17:00','HH24:MI'), '700000039', 539);
     
@@ -182,7 +182,7 @@ BEGIN
     
     FIDE_PROYECTO_FINAL_PKG.FIDE_PAGOS_INSERTAR_SP(7031, SYSDATE, 282500, 100);
     
-    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6031, SYSDATE, 282500, 32500, 'CumpleaÃ±os Rene Jr', 7031, 933);
+    FIDE_PROYECTO_FINAL_PKG.FIDE_FACTURACION_INSERTAR_SP(6031, SYSDATE, 282500, 32500, 'Cumpleaños Rene Jr', 7031, 933);
     FIDE_PROYECTO_FINAL_PKG.FIDE_DETALLE_FACTURA_INSERTAR_SP(6031, 1, 1, 250000, 250000, 2001);
 
 
