@@ -35,16 +35,32 @@ function renderUsuarios(lista) {
     tbody.innerHTML = '';
 
     if (lista.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No se encontraron usuarios.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No se encontraron usuarios.</td></tr>';
         return;
     }
 
     lista.forEach(u => {
         const rol = rolesCache.find(r => r.roles_id_rol_pk == u.roles_id_rol_pk);
         const nombreRol = rol ? rol.nombre_rol : 'Desconocido';
+        
         const estadoBadge = u.estados_id_estado_pk == 1 
             ? '<span class="estado-badge estado-completado">Activo</span>' 
             : '<span class="estado-badge estado-cancelado">Inactivo</span>';
+
+        // --- LÓGICA DE AUDITORÍA ---
+        // Si no hay dato, mostramos 'Sistema' o '-'
+        const creadoPor = u.creado_por || 'Sistema'; 
+        
+        // Formatear la fecha ISO que viene de Oracle a algo legible
+        let fechaRegistro = '-';
+        if (u.fecha_creacion) {
+            const fechaObj = new Date(u.fecha_creacion);
+            fechaRegistro = fechaObj.toLocaleDateString('es-CR', {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
+        // ---------------------------
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -52,6 +68,10 @@ function renderUsuarios(lista) {
             <td>${u.nombre} ${u.primer_apellido} ${u.segundo_apellido || ''}</td>
             <td>${nombreRol}</td>
             <td>${estadoBadge}</td>
+            
+            <td style="color:#aaa; font-size:0.9em;">${creadoPor}</td>
+            <td style="color:#aaa; font-size:0.9em;">${fechaRegistro}</td>
+            
             <td class="text-center">
                 <button class="btn-icon editar" onclick="abrirModalEditar('${u.usuarios_id_cedula_pk}')">✏️</button>
                 <button class="btn-icon eliminar" onclick="confirmarEliminar('${u.usuarios_id_cedula_pk}')">🗑️</button>

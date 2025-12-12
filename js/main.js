@@ -61,11 +61,11 @@ function gestionarNavegacion() {
             <li><a href="index.html" class="${isActive('index.html')}">Panel</a></li>
             <li><a href="clientes.html" class="${isActive('clientes.html')}">Clientes</a></li>
             <li><a href="reservaciones.html" class="${isActive('reservaciones.html')}">Reservas</a></li>
-            <li><a href="productos.html" class="${isActive('productos.html')}">Prod</a></li>
-            <li><a href="servicios.html" class="${isActive('servicios.html')}">Serv</a></li>
+            <li><a href="productos.html" class="${isActive('productos.html')}">Productos</a></li>
+            <li><a href="servicios.html" class="${isActive('servicios.html')}">Servicios</a></li>
             
             <li class="nav-item-dropdown">
-                <a href="#" class="${['usuarios.html', 'paquetes.html', 'ubicaciones.html', 'facturacion.html'].includes(path) ? 'active-link' : ''}">Más Opciones ▾</a>
+                <a href="#" class="${['usuarios.html', 'paquetes.html', 'ubicaciones.html', 'facturacion.html'].includes(path) ? 'active-link' : ''}">Más Opciones</a>
                 <div class="dropdown-content">
                     <a href="usuarios.html">👥 Usuarios y Roles</a>
                     <a href="paquetes.html">📦 Paquetes</a>
